@@ -1,29 +1,35 @@
 // ------------------------------
-// Helper: Show Selected Section
+// Helper Functions
 // ------------------------------
 function showSection(sectionId) {
-  document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
+  const target = document.getElementById(sectionId);
+  if (target) target.classList.add("active");
+}
+
+function showLiveSubSection(sectionId) {
+  document.querySelectorAll(".liveSubSection").forEach((el) => el.classList.remove("active"));
+  const target = document.getElementById(sectionId);
+  if (target) target.classList.add("active");
+}
+
+function showTestSubSection(sectionId) {
+  document.querySelectorAll(".testSubSection").forEach((el) => el.classList.remove("active"));
   const target = document.getElementById(sectionId);
   if (target) target.classList.add("active");
 }
 
 // ------------------------------
-// Live Game: Show/Hide Sub-Sections
-// ------------------------------
-function showLiveSubSection(sectionId) {
-  document.querySelectorAll(".liveSubSection").forEach(el => el.classList.remove("active"));
-  const target = document.getElementById(sectionId);
-  if(target) target.classList.add("active");
-}
-
-// ------------------------------
 // Global Variables
 // ------------------------------
-let userData = {}; // Stores user data (username, password, character, coins, position, offlineMode, etc.)
+let userData = {}; // For current user session
 const coinsReward = 100;
-const rewardInterval = 12 * 60 * 60 * 1000; // 12 hours in ms
+const rewardInterval = 12 * 60 * 60 * 1000; // 12 hours
 
-// Dummy friend list for GitHub users
+// For test portal expiration (30 days)
+const testPortalExpirationDays = 30;
+
+// Dummy friend list
 const friendList = [
   { username: "Alice" },
   { username: "Bob" },
@@ -38,14 +44,13 @@ const spells = [
 ];
 
 // ------------------------------
-// On DOMContentLoaded: Initialize user data if stored
+// Initialize stored user data
 // ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
   const storedData = localStorage.getItem("userData");
   if (storedData) {
     try {
       userData = JSON.parse(storedData);
-      // For GitHub users (live mode)
       if (userData.isGithub) {
         if (userData.coins === undefined) userData.coins = 0;
         if (!userData.position) userData.position = { x: 0, y: 0 };
@@ -53,12 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCoinDisplay();
         updatePositionDisplay();
         updateOfflineStatus();
-        // If character is missing, prompt the user to choose one.
         if (!userData.character || userData.character.trim() === "") {
           let newChar = prompt("Please choose your character:");
           if (!newChar || newChar.trim() === "") {
-            alert("You must choose a character to play live.");
-            // For our demo, force a default character.
+            alert("You must choose a character to play live. Setting default.");
             newChar = "DefaultHero";
           }
           userData.character = newChar;
@@ -66,8 +69,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         document.getElementById("userDisplayName").textContent = userData.username || userData.email;
         showSection("liveGameContent");
+      } else if (userData.isTest) {
+        // Check test portal expiration.
+        const now = Date.now();
+        if (now > userData.expiry) {
+          alert("Test Portal session has expired.");
+          localStorage.removeItem("userData");
+          showSection("authSection");
+        } else {
+          document.getElementById("testUserDisplayName").textContent = userData.username;
+          showSection("testPortalContent");
+        }
       } else {
-        // Normal (non-GitHub) users go to Download mode.
         document.getElementById("userDisplayNameNonGithub").textContent = userData.username;
         showSection("downloadContent");
       }
@@ -81,69 +94,96 @@ document.addEventListener("DOMContentLoaded", () => {
 // GitHub Login Flow (Simulated)
 // ------------------------------
 document.getElementById("githubLoginBtn").addEventListener("click", () => {
-  // Redirect to GitHub OAuth endpoint using your provided client ID.
   window.location.href =
     "https://github.com/login/oauth/authorize?client_id=Ov23liVGrguwGKyy3qly&scope=read:user%20user:email";
 });
 
-// Process OAuth callback if "code" parameter exists.
+// Process OAuth callback.
 (function handleOAuthCallback() {
   const params = new URLSearchParams(window.location.search);
   if (params.has("code")) {
-    // Simulate successful GitHub login with dummy data.
+    // Simulate GitHub login.
     userData = {
-      username: "GitHubUser",
+      username: "GitHubUser",  
       email: "githubuser@example.com",
       isGithub: true,
       coins: 0,
       position: { x: 0, y: 0 },
       lastReward: 0,
       offlineMode: false,
-      character: ""  // Initially blank—will be prompted below.
+      character: ""
     };
-    localStorage.setItem("userData", JSON.stringify(userData));
-    // Prompt to choose a character if not set.
-    let chosen = prompt("Please choose your character:");
-    if (!chosen || chosen.trim() === "") {
-      alert("You must choose a character to play live. Setting default character.");
-      chosen = "DefaultHero";
+    // Check for duplicate username.
+    let allGithubUsers = JSON.parse(localStorage.getItem("githubUsers") || "[]");
+    if (allGithubUsers.includes(userData.username)) {
+      alert("The username is already in use. Please change your gameplay username.");
+      // Force user to change it in extra info.
     }
-    userData.character = chosen;
     localStorage.setItem("userData", JSON.stringify(userData));
+    // Show extra info input if character or gameplay username is missing.
     document.getElementById("userDisplayName").textContent = userData.username;
-    // Clean URL parameters.
     window.history.replaceState({}, document.title, window.location.pathname);
     showSection("liveGameContent");
+    // Then, show GitHub extra info section.
+    document.getElementById("githubExtraDiv").style.display = "block";
   }
 })();
 
 // ------------------------------
-// Normal Login / Sign-Up (No email required)
+// GitHub Extra Info Submission
+// ------------------------------
+document.getElementById("githubExtraSubmit").addEventListener("click", () => {
+  const gameplayUsername = document.getElementById("githubGameplayUsername").value.trim();
+  const avatarInputs = document.getElementsByName("githubAvatar");
+  let avatarUrl = "";
+  avatarInputs.forEach((input) => {
+    if (input.checked) avatarUrl = input.value;
+  });
+  if (!gameplayUsername || !avatarUrl) {
+    document.getElementById("githubExtraError").textContent =
+      "Gameplay username and avatar are required.";
+    return;
+  }
+  // Check duplicate among GitHub users.
+  let allGithubUsers = JSON.parse(localStorage.getItem("githubUsers") || "[]");
+  if (allGithubUsers.includes(gameplayUsername)) {
+    document.getElementById("githubExtraError").textContent =
+      "This gameplay username is already used. Please choose another.";
+    return;
+  }
+  // Update current user info:
+  userData.username = gameplayUsername;
+  userData.avatar = avatarUrl;
+  localStorage.setItem("userData", JSON.stringify(userData));
+  // Also update global list:
+  allGithubUsers.push(gameplayUsername);
+  localStorage.setItem("githubUsers", JSON.stringify(allGithubUsers));
+  document.getElementById("userDisplayName").textContent = gameplayUsername;
+  document.getElementById("githubExtraDiv").style.display = "none";
+});
+
+// ------------------------------
+// Normal Account: Sign Up / Sign In
 // ------------------------------
 document.getElementById("normalSignupBtn").addEventListener("click", () => {
   const username = document.getElementById("normalUsername").value.trim();
-  const password = document.getElementById("normalPassword").value;
+  const password = document.getElementById("normalSignupPassword").value;
   const character = document.getElementById("normalCharacter").value.trim();
   const errorMsg = document.getElementById("normalAuthError");
-  
-  if (!username || !password || !character) {
-    errorMsg.textContent = "Username, password, and character are required.";
+
+  if (!username || !character) {
+    errorMsg.textContent = "Username and character are required.";
     return;
   }
-  
-  // Check if a normal account already exists.
-  if (localStorage.getItem("normalUser")) {
-    errorMsg.textContent = "An account already exists. Please sign in.";
-    return;
-  }
-  
+  // For normal users, duplicate usernames are allowed.
   const normalUser = {
     username,
-    password,
+    password: password || "", // May be empty on sign‐up; can be set later.
     character,
     isGithub: false,
     createdAt: new Date().toISOString()
   };
+  // Save this normal user (simulate multiple accounts by saving under 'normalUser'; in reality, a file would list many users)
   localStorage.setItem("normalUser", JSON.stringify(normalUser));
   userData = normalUser;
   localStorage.setItem("userData", JSON.stringify(userData));
@@ -152,38 +192,43 @@ document.getElementById("normalSignupBtn").addEventListener("click", () => {
   showSection("downloadContent");
 });
 
-document.getElementById("normalLoginBtn").addEventListener("click", () => {
+document.getElementById("normalSignInBtn").addEventListener("click", () => {
   const username = document.getElementById("normalUsername").value.trim();
-  const password = document.getElementById("normalPassword").value;
+  const password = document.getElementById("normalSignInPassword").value;
   const errorMsg = document.getElementById("normalAuthError");
-  
-  if (!username || !password) {
-    errorMsg.textContent = "Please enter both username and password.";
+  if (!username) {
+    errorMsg.textContent = "Please enter your username.";
     return;
   }
-  
   const storedUser = localStorage.getItem("normalUser");
   if (!storedUser) {
     errorMsg.textContent = "No account found. Please sign up first.";
     return;
   }
   const normalUser = JSON.parse(storedUser);
-  if (normalUser.username !== username || normalUser.password !== password) {
-    errorMsg.textContent = "Invalid username or password.";
+  // If password is required, check it.
+  if (normalUser.password && normalUser.password !== password) {
+    errorMsg.textContent = "Incorrect password.";
     return;
   }
-  
-  // Verify character information.
   if (!normalUser.character || normalUser.character.trim() === "") {
-    errorMsg.textContent = "No character found on your account. Please sign up and choose a character.";
+    errorMsg.textContent =
+      "No character found. Please sign up and choose a character.";
     return;
   }
-  
   userData = normalUser;
   localStorage.setItem("userData", JSON.stringify(userData));
   document.getElementById("userDisplayNameNonGithub").textContent = username;
   errorMsg.textContent = "";
   showSection("downloadContent");
+});
+
+// (Optional: You can reveal the sign in password field if the uploaded game file requires it)
+// For example, listen for file input change:
+document.getElementById("normalGameFile").addEventListener("change", (e) => {
+  // In a full implementation, read file and if file indicates password protection, display the password field.
+  // For our demo, we always display it.
+  document.getElementById("normalSignInPassword").style.display = "block";
 });
 
 // ------------------------------
@@ -197,9 +242,13 @@ document.getElementById("logoutBtnNonGithub").addEventListener("click", () => {
   localStorage.removeItem("userData");
   showSection("authSection");
 });
+document.getElementById("logoutTestBtn").addEventListener("click", () => {
+  localStorage.removeItem("userData");
+  showSection("authSection");
+});
 
 // ------------------------------
-// Daily Rewards (Live Play / GitHub users Only)
+// Daily Rewards (for GitHub live mode only)
 // ------------------------------
 document.getElementById("dailyRewardBtn").addEventListener("click", () => {
   if (!userData.isGithub) return;
@@ -221,16 +270,22 @@ document.getElementById("dailyRewardBtn").addEventListener("click", () => {
 // ------------------------------
 function updateCoinDisplay() {
   document.getElementById("coinDisplay").textContent = userData.coins || 0;
+  if (userData.isTest) {
+    document.getElementById("testCoinDisplay").textContent = userData.coins || 0;
+  }
 }
 
 function updatePositionDisplay() {
   document.getElementById("posX").textContent = (userData.position && userData.position.x) || 0;
   document.getElementById("posY").textContent = (userData.position && userData.position.y) || 0;
+  if (userData.isTest) {
+    document.getElementById("testPosX").textContent = (userData.position && userData.position.x) || 0;
+    document.getElementById("testPosY").textContent = (userData.position && userData.position.y) || 0;
+  }
 }
 
 function updateOfflineStatus() {
   document.getElementById("offlineStatus").textContent = userData.offlineMode ? "Offline" : "Online";
-  // Hide Friends tab if offline.
   document.getElementById("friendsBtn").style.display = userData.offlineMode ? "none" : "inline-block";
   if (userData.offlineMode) {
     showLiveSubSection("menuContent");
@@ -238,7 +293,7 @@ function updateOfflineStatus() {
 }
 
 // ------------------------------
-// Map Functionality (Live Play)
+// Map Functionality (Live Mode)
 // ------------------------------
 document.getElementById("mapBtn").addEventListener("click", () => {
   showLiveSubSection("mapContainer");
@@ -256,11 +311,10 @@ document.getElementById("settingsBtn").addEventListener("click", () => {
   showLiveSubSection("settingsContent");
 });
 
-// Process map clicks.
-document.querySelectorAll("map[name='gameMap'] area").forEach(area => {
+// Process clicks on map areas.
+document.querySelectorAll("map[name='gameMap'] area").forEach((area) => {
   area.addEventListener("click", (event) => {
     event.preventDefault();
-    // If the area is forbidden, show alert.
     if (area.dataset.forbidden === "true") {
       alert("Restricted zone: You are not allowed to enter here!");
       return;
@@ -278,7 +332,7 @@ document.getElementById("backToMenuFromMap").addEventListener("click", () => {
 });
 
 // ------------------------------
-// Shop Functionality (Live Play)
+// Shop Functionality (Live Mode)
 // ------------------------------
 document.getElementById("backToMenuFromShop").addEventListener("click", () => {
   showLiveSubSection("menuContent");
@@ -286,7 +340,7 @@ document.getElementById("backToMenuFromShop").addEventListener("click", () => {
 function updateShop() {
   const shopItemsDiv = document.getElementById("shopItems");
   shopItemsDiv.innerHTML = "";
-  spells.forEach(spell => {
+  spells.forEach((spell) => {
     const itemDiv = document.createElement("div");
     itemDiv.className = "shopItem";
     const title = document.createElement("h3");
@@ -315,13 +369,13 @@ function updateShop() {
 document.getElementById("shopBtn").addEventListener("click", updateShop);
 
 // ------------------------------
-// Friends & Duel Functionality (Live Play, GitHub only)
+// Friends & Duel Functionality (Live Mode, GitHub only)
 // ------------------------------
 function updateFriendList() {
   if (userData.offlineMode) return;
   const friendListDiv = document.getElementById("friendList");
   friendListDiv.innerHTML = "";
-  friendList.forEach(friend => {
+  friendList.forEach((friend) => {
     const friendDiv = document.createElement("div");
     friendDiv.className = "friendItem";
     friendDiv.textContent = friend.username;
@@ -338,7 +392,7 @@ function updateFriendList() {
 document.getElementById("friendsBtn").addEventListener("click", updateFriendList);
 
 // ------------------------------
-// Toggle Offline Mode (GitHub Users only)
+// Toggle Offline Mode (GitHub only)
 // ------------------------------
 document.getElementById("toggleOfflineBtn").addEventListener("click", () => {
   userData.offlineMode = !userData.offlineMode;
@@ -349,15 +403,108 @@ document.getElementById("toggleOfflineBtn").addEventListener("click", () => {
 });
 
 // ------------------------------
-// Settings Sub-Section: Support Link
+// Settings Sub-Section Functions
 // ------------------------------
-document.getElementById("backToMenuFromSettings").addEventListener("click", () => {
-  showLiveSubSection("menuContent");
+document.getElementById("updatePasswordBtn").addEventListener("click", () => {
+  const newPass = document.getElementById("newPassword").value;
+  if (!newPass) {
+    alert("Please enter a new password.");
+    return;
+  }
+  userData.password = newPass;
+  localStorage.setItem("userData", JSON.stringify(userData));
+  alert("Password updated.");
+});
+
+document.getElementById("transferDataBtn").addEventListener("click", () => {
+  // Transfer data from an uploaded game JSON file
+  const fileInput = document.getElementById("transferGameFile");
+  if (fileInput.files.length === 0) {
+    alert("Please select a file to transfer data from.");
+    return;
+  }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const transferredData = JSON.parse(e.target.result);
+      // Merge transferred data into userData (avoid overwriting vital fields)
+      userData = { ...userData, ...transferredData };
+      localStorage.setItem("userData", JSON.stringify(userData));
+      updateCoinDisplay();
+      updatePositionDisplay();
+      alert("Data transferred successfully.");
+    } catch (err) {
+      alert("Error transferring data. Please ensure the file is valid.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Test Portal: When testPageBtn is clicked, create/activate test portal.
+document.getElementById("testPageBtn").addEventListener("click", () => {
+  // For testing, we simulate a test portal creation if not already set.
+  // Also require a password for test portal entry. (Hardcode a value for this demo.)
+  const testPassword = prompt("Enter the Test Portal password:");
+  const expectedTestPassword = "test123"; // Set your test password here.
+  if (testPassword !== expectedTestPassword) {
+    alert("Incorrect test portal password.");
+    return;
+  }
+  // Create test portal data.
+  userData.isTest = true;
+  // Set expiration time 30 days from now.
+  userData.expiry = Date.now() + testPortalExpirationDays * 24 * 60 * 60 * 1000;
+  // Save test portal info.
+  localStorage.setItem("userData", JSON.stringify(userData));
+  document.getElementById("testUserDisplayName").textContent = userData.username;
+  showSection("testPortalContent");
+});
+
+// Test Portal Navigation
+document.getElementById("testMenuBtn").addEventListener("click", () => {
+  showTestSubSection("testMenuContent");
+});
+document.getElementById("testMapBtn").addEventListener("click", () => {
+  showTestSubSection("testMapContainer");
+});
+document.getElementById("testShopBtn").addEventListener("click", () => {
+  showTestSubSection("testShopContainer");
+});
+document.getElementById("testSettingsBtn").addEventListener("click", () => {
+  showTestSubSection("testSettingsContent");
+});
+document.getElementById("logoutTestBtn").addEventListener("click", () => {
+  localStorage.removeItem("userData");
+  showSection("authSection");
+});
+document.getElementById("backToTestMenuFromMap").addEventListener("click", () => {
+  showTestSubSection("testMenuContent");
+});
+document.getElementById("backToTestMenuFromShop").addEventListener("click", () => {
+  showTestSubSection("testMenuContent");
+});
+document.getElementById("backToTestMenuFromSettings").addEventListener("click", () => {
+  showTestSubSection("testMenuContent");
+});
+document.getElementById("testUpdatePasswordBtn").addEventListener("click", () => {
+  const testNewPass = document.getElementById("testNewPassword").value;
+  if (!testNewPass) {
+    alert("Please enter a new password.");
+    return;
+  }
+  userData.password = testNewPass;
+  localStorage.setItem("userData", JSON.stringify(userData));
+  alert("Test portal password updated.");
 });
 
 // ------------------------------
-// File Download for Non-GitHub Users Only
+// Offline Mode / Download Mode Functions (Non-GitHub)
 // ------------------------------
+document.getElementById("viewMapBtn").addEventListener("click", () => {
+  const offlineDiv = document.getElementById("offlineMapBadges");
+  offlineDiv.style.display = offlineDiv.style.display === "none" ? "block" : "none";
+});
 document.getElementById("downloadFileBtn").addEventListener("click", () => {
   if (userData.isGithub) {
     alert("GitHub users are not permitted to download game data.");

@@ -1,43 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chirpy Games: Fall of the Firewall</title>
-  <link rel="stylesheet" href="https://camcookie876.github.io/Chirpy-Games/Styles.css">
-  <!-- Main JavaScript file; defer ensures the DOM is ready -->
-  <script src="https://camcookie876.github.io/Chirpy-Games/script.js" defer></script>
+  <!-- Favicon using the provided URL -->
+  <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/214270165?v=4" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Main JavaScript file; defer ensures the DOM is loaded -->
+  <script src="script.js" defer></script>
 </head>
 <body>
   <!-- Authentication Section -->
   <section id="authSection" class="page active">
     <h2>Welcome to Chirpy Games: Fall of the Firewall</h2>
-    <p>Please either sign in with GitHub or use the normal sign in/up method.</p>
-    
+    <p>Please sign in with GitHub or use the normal account options below.</p>
+
     <!-- GitHub Login -->
     <button id="githubLoginBtn" class="btn github-btn">Login with GitHub</button>
     <p class="small-text">
-      Don't have a GitHub account? 
+      Don't have a GitHub account?
       <a href="https://github.com/join" target="_blank">Sign up on GitHub</a>
     </p>
-    <hr>
-    
-    <!-- Normal Login / Sign-Up Section (No email required) -->
-    <div id="normalLoginDiv" class="form-section">
-      <h3>Sign In / Sign Up (Normal Account)</h3>
-      <input id="normalUsername" type="text" placeholder="Username" autocomplete="username">
-      <input id="normalPassword" type="password" placeholder="Password" autocomplete="current-password">
-      <!-- Added Character input field -->
-      <input id="normalCharacter" type="text" placeholder="Choose Your Character" autocomplete="off">
-      <div class="btn-group">
-        <button id="normalLoginBtn" class="btn">Sign In</button>
-        <button id="normalSignupBtn" class="btn">Sign Up</button>
+    <hr />
+
+    <!-- Normal Account Section -->
+    <div id="normalAuthDiv" class="form-section">
+      <!-- Normal Sign In -->
+      <h3>Normal Account Sign In</h3>
+      <label for="normalGameFile">Upload your Game JSON File:</label>
+      <input id="normalGameFile" type="file" accept=".json,.txt" />
+      <!-- The password field for sign in becomes visible if file data requires it (handled in JS) -->
+      <input id="normalSignInPassword" type="password" placeholder="Password (if required)" autocomplete="current-password" style="display: none;" />
+      <button id="normalSignInBtn" class="btn">Sign In</button>
+      <hr />
+      <!-- Normal Sign Up -->
+      <h3>Normal Account Sign Up</h3>
+      <input id="normalUsername" type="text" placeholder="Create a Username" autocomplete="username" />
+      <!-- Password is optional on sign-up -->
+      <input id="normalSignupPassword" type="password" placeholder="Create Password (optional)" autocomplete="new-password" />
+      <!-- Avatar Selection for Normal Sign Up -->
+      <div id="avatarSelectionNormal" class="avatar-selection">
+        <p>Select an Avatar:</p>
+        <div class="avatar-options">
+          <label>
+            <input type="radio" name="normalAvatar" value="https://example.com/normal_avatar1.png" />
+            <img src="https://example.com/normal_avatar1.png" alt="Avatar 1" />
+          </label>
+          <label>
+            <input type="radio" name="normalAvatar" value="https://example.com/normal_avatar2.png" />
+            <img src="https://example.com/normal_avatar2.png" alt="Avatar 2" />
+          </label>
+          <label>
+            <input type="radio" name="normalAvatar" value="https://example.com/normal_avatar3.png" />
+            <img src="https://example.com/normal_avatar3.png" alt="Avatar 3" />
+          </label>
+        </div>
       </div>
+      <button id="normalSignupBtn" class="btn">Sign Up</button>
       <p id="normalAuthError" class="error-text"></p>
     </div>
+
+    <!-- GitHub Additional Info Section (displayed after OAuth, if needed) -->
+    <div id="githubExtraDiv" class="form-section" style="display: none;">
+      <h3>GitHub Account Setup</h3>
+      <input id="githubGameplayUsername" type="text" placeholder="Enter Gameplay Username" autocomplete="username" />
+      <!-- Avatar Selection for GitHub Users -->
+      <div id="avatarSelectionGithub" class="avatar-selection">
+        <p>Select an Avatar:</p>
+        <div class="avatar-options">
+          <label>
+            <input type="radio" name="githubAvatar" value="https://example.com/gh_avatar1.png" />
+            <img src="https://example.com/gh_avatar1.png" alt="GitHub Avatar 1" />
+          </label>
+          <label>
+            <input type="radio" name="githubAvatar" value="https://example.com/gh_avatar2.png" />
+            <img src="https://example.com/gh_avatar2.png" alt="GitHub Avatar 2" />
+          </label>
+          <label>
+            <input type="radio" name="githubAvatar" value="https://example.com/gh_avatar3.png" />
+            <img src="https://example.com/gh_avatar3.png" alt="GitHub Avatar 3" />
+          </label>
+        </div>
+      </div>
+      <button id="githubExtraSubmit" class="btn">Submit Info</button>
+      <p id="githubExtraError" class="error-text"></p>
+    </div>
   </section>
-  
-  <!-- Live Game Content (GitHub users only) -->
+
+  <!-- Live Game Content (for GitHub users only) -->
   <section id="liveGameContent" class="page">
     <header>
       <h1>Live Game - Welcome, <span id="userDisplayName"></span>!</h1>
@@ -48,68 +99,123 @@
         <button id="friendsBtn" class="btn">Friends</button>
         <button id="settingsBtn" class="btn">Settings</button>
         <button id="dailyRewardBtn" class="btn">Daily Reward</button>
-        <!-- Offline toggle -->
         <button id="toggleOfflineBtn" class="btn">Play Offline</button>
+        <button id="testPageBtn" class="btn">Test Portal</button>
         <button id="logoutBtn" class="btn">Logout</button>
       </nav>
     </header>
-    
     <!-- Live Sub-Sections -->
     <div id="menuContent" class="liveSubSection active">
-      <p>This is the main game menu.</p>
+      <p>Main game menu.</p>
       <p>Coins: <span id="coinDisplay">0</span></p>
       <p>Offline Mode: <span id="offlineStatus">Online</span></p>
     </div>
-    
     <div id="mapContainer" class="liveSubSection">
       <h2>Game Map</h2>
-      <!-- The image map includes allowed and restricted zones -->
-      <img id="mapImage" src="map-background.jpg" alt="Game Map" usemap="#gameMap">
+      <img id="mapImage" src="map-background.jpg" alt="Game Map" usemap="#gameMap" />
       <map name="gameMap">
-        <!-- Allowed Zone 1 -->
-        <area shape="rect" coords="50,50,200,200" data-x="125" data-y="125" alt="Zone 1" href="#">
-        <!-- Allowed Zone 2 -->
-        <area shape="rect" coords="250,50,400,200" data-x="325" data-y="125" alt="Zone 2" href="#">
-        <!-- Restricted Zone -->
-        <area shape="rect" coords="450,350,500,400" data-forbidden="true" alt="Restricted Zone" href="#">
+        <area shape="rect" coords="50,50,200,200" data-x="125" data-y="125" alt="Zone 1" href="#" />
+        <area shape="rect" coords="250,50,400,200" data-x="325" data-y="125" alt="Zone 2" href="#" />
+        <area shape="rect" coords="450,350,500,400" data-forbidden="true" alt="Restricted Zone" href="#" />
       </map>
-      <p>
-        Current Position: X: <span id="posX">0</span> Y: <span id="posY">0</span>
-      </p>
+      <p>Current Position: X: <span id="posX">0</span> Y: <span id="posY">0</span></p>
       <button id="backToMenuFromMap" class="btn">Back to Menu</button>
     </div>
-    
     <div id="shopContainer" class="liveSubSection">
       <h2>Shop</h2>
       <div id="shopItems">
-        <!-- Shop items will be generated dynamically -->
+        <!-- Shop items generated dynamically -->
       </div>
       <button id="backToMenuFromShop" class="btn">Back to Menu</button>
     </div>
-    
     <div id="friendsContainer" class="liveSubSection">
       <h2>Friends</h2>
       <div id="friendList">
-        <!-- Dummy friend list will be generated dynamically -->
+        <!-- Friends list generated dynamically -->
       </div>
-      <p class="small-text">Click on a friend and then select "Duel" to start a duel.</p>
+      <p class="small-text">Click a friend then select "Duel" to start a duel.</p>
       <button id="backToMenuFromFriends" class="btn">Back to Menu</button>
     </div>
-    
-    <!-- Settings Sub-Section -->
     <div id="settingsContent" class="liveSubSection">
       <h2>Settings</h2>
-      <p>For support, visit our <a href="https://github.com/camcookie876/Chirpy-Games" target="_blank">Support Page</a>.</p>
+      <p>Support: <a href="https://github.com/camcookie876/Chirpy-Games" target="_blank">Visit our Support Page</a></p>
+      <!-- Allow non-GitHub users to edit password; also allow GitHub users to transfer file data -->
+      <div id="editPasswordDiv">
+        <h3>Edit Password</h3>
+        <input id="newPassword" type="password" placeholder="Enter new password" autocomplete="new-password" />
+        <button id="updatePasswordBtn" class="btn">Update Password</button>
+      </div>
+      <div id="transferDataDiv">
+        <h3>Transfer Game Data</h3>
+        <input id="transferGameFile" type="file" accept=".json,.txt" />
+        <button id="transferDataBtn" class="btn">Transfer Data</button>
+      </div>
+      <!-- Test Portal Button: opens the test portal (see below) -->
+      <button id="testPageBtnInSettings" class="btn">Go to Test Portal</button>
       <button id="backToMenuFromSettings" class="btn">Back to Menu</button>
     </div>
   </section>
-  
-  <!-- Download Mode Content (Non-GitHub users only) -->
+
+  <!-- Test Portal Content (for GitHub test accounts) -->
+  <section id="testPortalContent" class="page" style="display: none;">
+    <header>
+      <h1>Test Portal - Welcome, <span id="testUserDisplayName"></span>!</h1>
+      <nav id="testNav">
+        <button id="testMenuBtn" class="btn">Menu</button>
+        <button id="testMapBtn" class="btn">Map</button>
+        <button id="testShopBtn" class="btn">Shop</button>
+        <button id="testSettingsBtn" class="btn">Settings</button>
+        <button id="logoutTestBtn" class="btn">Logout</button>
+      </nav>
+      <p class="small-text">Note: This test portal expires after 30 days.</p>
+    </header>
+    <!-- Test Portal Sub-Sections (similar to live but without live gameplay/friending) -->
+    <div id="testMenuContent" class="testSubSection active">
+      <p>Test Portal Main Menu.</p>
+      <p>Coins: <span id="testCoinDisplay">0</span></p>
+    </div>
+    <div id="testMapContainer" class="testSubSection">
+      <h2>Test Map</h2>
+      <img id="testMapImage" src="map-background.jpg" alt="Test Map" usemap="#testMap" />
+      <map name="testMap">
+        <area shape="rect" coords="50,50,200,200" data-x="125" data-y="125" alt="Test Zone 1" href="#" />
+        <area shape="rect" coords="250,50,400,200" data-x="325" data-y="125" alt="Test Zone 2" href="#" />
+        <area shape="rect" coords="450,350,500,400" data-forbidden="true" alt="Restricted Zone" href="#" />
+      </map>
+      <p>Test Position: X: <span id="testPosX">0</span> Y: <span id="testPosY">0</span></p>
+      <button id="backToTestMenuFromMap" class="btn">Back to Menu</button>
+    </div>
+    <div id="testShopContainer" class="testSubSection">
+      <h2>Test Shop</h2>
+      <div id="testShopItems">
+        <!-- Test shop items generated dynamically -->
+      </div>
+      <button id="backToTestMenuFromShop" class="btn">Back to Menu</button>
+    </div>
+    <div id="testSettingsContent" class="testSubSection">
+      <h2>Test Settings</h2>
+      <div id="testEditPasswordDiv">
+        <h3>Edit Password</h3>
+        <input id="testNewPassword" type="password" placeholder="Enter new password" autocomplete="new-password" />
+        <button id="testUpdatePasswordBtn" class="btn">Update Password</button>
+      </div>
+      <button id="backToTestMenuFromSettings" class="btn">Back to Menu</button>
+    </div>
+  </section>
+
+  <!-- Download Mode Content (for Non-GitHub users) -->
   <section id="downloadContent" class="page">
-    <h1>Download Game Data - Welcome, <span id="userDisplayNameNonGithub"></span>!</h1>
-    <p>You signed in with a normal account. You may download the game data file below.</p>
+    <h1>Offline Mode - Welcome, <span id="userDisplayNameNonGithub"></span>!</h1>
+    <p>You signed in with a normal account. You can view your badges and use the maps (offline) but not live gameplay.</p>
+    <button id="viewMapBtn" class="btn">View Map & Badges</button>
+    <div id="offlineMapBadges" style="display: none;">
+      <h2>Your Offline Map</h2>
+      <img src="map-offline.jpg" alt="Offline Map" style="max-width: 100%; border: 2px solid #333; border-radius: 8px;" />
+      <h2>Your Badges</h2>
+      <p>(Badge details would appear here.)</p>
+    </div>
     <button id="downloadFileBtn" class="btn download-btn">Download Game Data File</button>
-    <br>
+    <br />
     <button id="logoutBtnNonGithub" class="btn">Logout</button>
   </section>
 </body>
