@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Screen</title>
+    <style>
+        /* Full page style for the loading screen */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: blue; /* Blue background */
+        }
+
+        /* Style for the loading bar */
+.loading-bar {
+            width: 70%; /* Bar width */
+            height: 30px; /* Bar height */
+            background-color: white; /* White background for the borders */
+            border: 3px solid white; /* White border */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Inner bar animation */
+.progress {
+            height: 100%;
+            width: 0; /* Start from 0 width */
+            background-color: blue; /* Bar color */
+            animation: loading 3s linear infinite; /* Animation for loading effect */
+        }
+
+        /* Keyframes for loading animation */
+        @keyframes loading {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+    </style>
+      <meta charset="UTF-8">
+  <title>Processing Login...</title>
+  <script>
+    // Wait for a few moments to process the OAuth code if needed,
+    // then redirect to home.html without query parameters.
+    window.onload = function() {
+      // You can optionally process the code from the URL here.
+      // Then immediately redirect:
+      window.location.href = "https://blue-coding.w3spaces.com/home.html";
+    };
+  </script>
+</head>
+<body>
+    <div class="loading-bar">
+        <div class="progress"></div>
+    </div>
+    <p>Please wait while we complete your login...</p>
+</body>
+</html>
+
