@@ -1,0 +1,86 @@
+<head>
+<title>Chirpy Games - Home</title>
+<style>
+
+body {
+font-family: "Arial", sans-serif;
+background: #0099ff;
+}
+#Games-1 {
+    position: fixed; /* Fixed positioning allows it to fill the viewport */
+    top: 0;
+    left: 0;
+    width: 100%;    /* Full width */
+    height: 100%;   /* Full height */
+    overflow-y: scroll; /* Enables vertical scrolling for content */
+    background-color: #0099ff; /* Optional background */
+    display: none;
+    color: #fff;
+}
+/* Custom Scrollbar */
+#Games-1::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+}
+
+#Games-1::-webkit-scrollbar-track {
+    background: transparent; /* Track color */
+}
+
+#Games-1::-webkit-scrollbar-thumb {
+    background: #888; /* Handle color */
+    border-radius: 10px; /* Round scrollbar handle */
+}
+
+h1 {
+text-align: center;
+}
+h2 {
+text-align: center;
+}
+h3 {
+text-align: center;
+}
+</style>
+</head>
+
+
+
+
+<button class="text-align: center;" onclick="toggleDiv()"></button>
+<div id="Games-1">
+<h1>Chirpy Games: Fall of the Firewall</h1><p>
+Fly threw a world of coding.<br>
+A Virous has taken over the computer, and you need to stop it!<br>
+Make your way from the CPU to the USB plug.<br>
+Battle corrupted robots to save them on the way there!<br>
+Ages 8+
+<h2>--Account Types--</h2>
+<h3>Everyone:</h3>
+Caracter Selection<br>
+Daily Rewards<br>
+New Spells Update Every Month<br>
+Allways Latest Version<br>
+And More!<br>
+<h3>GitHub account login:</h3>
+Live Gameplay<br>
+Friending<br>
+<h3>Offline Account:</h3>
+Information File download for login<br>
+By: Chirpy Games<br>
+This is an Educational game to teach kids and adults about coding.<br>
+Please by kind wen making comments about this work, the code was only made by a 10 year old.<br>
+Have fun and be creative!</p>
+    <h1><a href="./Home.html" target="_blank">PLAY!</a></h1>
+</div>
+
+
+<script>
+    function toggleDiv() {
+        var div = document.getElementById("Games-1");
+        if (div.style.display === "none") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
+    }
+</script>

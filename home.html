@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chirpy Games: Fall of the Firewall</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Main JavaScript file; defer ensures the DOM is ready -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- Authentication Section -->
+  <section id="authSection" class="page active">
+    <h2>Welcome to Chirpy Games: Fall of the Firewall</h2>
+    <p>Please either sign in with GitHub or use the normal sign in/up method.</p>
+    
+    <!-- GitHub Login -->
+    <button id="githubLoginBtn" class="btn github-btn">Login with GitHub</button>
+    <p class="small-text">
+      Don't have a GitHub account? 
+      <a href="https://github.com/join" target="_blank">Sign up on GitHub</a>
+    </p>
+    <hr>
+    
+    <!-- Normal Login / Sign-Up Section (No email required) -->
+    <div id="normalLoginDiv" class="form-section">
+      <h3>Sign In / Sign Up (Normal Account)</h3>
+      <input id="normalUsername" type="text" placeholder="Username" autocomplete="username">
+      <input id="normalPassword" type="password" placeholder="Password" autocomplete="current-password">
+      <!-- Added Character input field -->
+      <input id="normalCharacter" type="text" placeholder="Choose Your Character" autocomplete="off">
+      <div class="btn-group">
+        <button id="normalLoginBtn" class="btn">Sign In</button>
+        <button id="normalSignupBtn" class="btn">Sign Up</button>
+      </div>
+      <p id="normalAuthError" class="error-text"></p>
+    </div>
+  </section>
+  
+  <!-- Live Game Content (GitHub users only) -->
+  <section id="liveGameContent" class="page">
+    <header>
+      <h1>Live Game - Welcome, <span id="userDisplayName"></span>!</h1>
+      <nav id="liveNav">
+        <button id="menuBtn" class="btn">Menu</button>
+        <button id="mapBtn" class="btn">Map</button>
+        <button id="shopBtn" class="btn">Shop</button>
+        <button id="friendsBtn" class="btn">Friends</button>
+        <button id="settingsBtn" class="btn">Settings</button>
+        <button id="dailyRewardBtn" class="btn">Daily Reward</button>
+        <!-- Offline toggle -->
+        <button id="toggleOfflineBtn" class="btn">Play Offline</button>
+        <button id="logoutBtn" class="btn">Logout</button>
+      </nav>
+    </header>
+    
+    <!-- Live Sub-Sections -->
+    <div id="menuContent" class="liveSubSection active">
+      <p>This is the main game menu.</p>
+      <p>Coins: <span id="coinDisplay">0</span></p>
+      <p>Offline Mode: <span id="offlineStatus">Online</span></p>
+    </div>
+    
+    <div id="mapContainer" class="liveSubSection">
+      <h2>Game Map</h2>
+      <!-- The image map includes allowed and restricted zones -->
+      <img id="mapImage" src="map-background.jpg" alt="Game Map" usemap="#gameMap">
+      <map name="gameMap">
+        <!-- Allowed Zone 1 -->
+        <area shape="rect" coords="50,50,200,200" data-x="125" data-y="125" alt="Zone 1" href="#">
+        <!-- Allowed Zone 2 -->
+        <area shape="rect" coords="250,50,400,200" data-x="325" data-y="125" alt="Zone 2" href="#">
+        <!-- Restricted Zone -->
+        <area shape="rect" coords="450,350,500,400" data-forbidden="true" alt="Restricted Zone" href="#">
+      </map>
+      <p>
+        Current Position: X: <span id="posX">0</span> Y: <span id="posY">0</span>
+      </p>
+      <button id="backToMenuFromMap" class="btn">Back to Menu</button>
+    </div>
+    
+    <div id="shopContainer" class="liveSubSection">
+      <h2>Shop</h2>
+      <div id="shopItems">
+        <!-- Shop items will be generated dynamically -->
+      </div>
+      <button id="backToMenuFromShop" class="btn">Back to Menu</button>
+    </div>
+    
+    <div id="friendsContainer" class="liveSubSection">
+      <h2>Friends</h2>
+      <div id="friendList">
+        <!-- Dummy friend list will be generated dynamically -->
+      </div>
+      <p class="small-text">Click on a friend and then select "Duel" to start a duel.</p>
+      <button id="backToMenuFromFriends" class="btn">Back to Menu</button>
+    </div>
+    
+    <!-- Settings Sub-Section -->
+    <div id="settingsContent" class="liveSubSection">
+      <h2>Settings</h2>
+      <p>For support, visit our <a href="https://github.com/camcookie876/Chirpy-Games" target="_blank">Support Page</a>.</p>
+      <button id="backToMenuFromSettings" class="btn">Back to Menu</button>
+    </div>
+  </section>
+  
+  <!-- Download Mode Content (Non-GitHub users only) -->
+  <section id="downloadContent" class="page">
+    <h1>Download Game Data - Welcome, <span id="userDisplayNameNonGithub"></span>!</h1>
+    <p>You signed in with a normal account. You may download the game data file below.</p>
+    <button id="downloadFileBtn" class="btn download-btn">Download Game Data File</button>
+    <br>
+    <button id="logoutBtnNonGithub" class="btn">Logout</button>
+  </section>
+</body>
+</html>

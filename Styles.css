@@ -1,0 +1,244 @@
+/* Reset common defaults */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body, html {
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+}
+
+/* -----------------------------
+   General Page and Section Styles
+------------------------------ */
+.page {
+  width: 100%;
+  min-height: 100vh;
+  display: none; /* Hidden by default; active shows */
+  padding: 20px;
+}
+.active {
+  display: block;
+}
+
+/* -----------------------------
+   Authentication Section
+------------------------------ */
+#authSection {
+  background: #ffffff;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  text-align: center;
+}
+#authSection h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+#authSection p {
+  margin-bottom: 20px;
+  color: #555;
+}
+.small-text {
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+/* GitHub Login Button */
+.github-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.github-btn:hover {
+  background: #555;
+}
+
+/* Normal Login / Sign-Up */
+#normalLoginDiv {
+  margin-top: 20px;
+  padding: 15px;
+  border-top: 1px solid #ddd;
+}
+#normalLoginDiv h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+#normalLoginDiv input {
+  display: block;
+  width: 90%;
+  padding: 10px;
+  margin: 10px auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.btn-group {
+  display: flex;
+  justify-content: space-around;
+}
+#normalLoginDiv button {
+  flex: 1;
+  margin: 10px;
+  background: #007acc;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#normalLoginDiv button:hover {
+  background: #005fa3;
+}
+.error-text {
+  color: #d8000c;
+  margin-top: 10px;
+}
+
+/* -----------------------------
+   Live Game Content Styles
+------------------------------ */
+#liveGameContent {
+  background: url("live-background.jpg") no-repeat center center;
+  background-size: cover;
+  color: #fff;
+  text-align: center;
+  padding-top: 30px;
+}
+
+#liveGameContent header h1 {
+  margin-bottom: 10px;
+}
+
+#liveNav {
+  margin-bottom: 20px;
+}
+#liveNav .btn {
+  margin: 5px;
+  background: #007acc;
+  color: #fff;
+}
+#liveNav .btn:hover {
+  background: #005fa3;
+}
+
+/* Live Sub-Sections */
+.liveSubSection {
+  display: none;
+}
+.liveSubSection.active {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+/* Map Container */
+#mapContainer img {
+  width: 100%;
+  max-width: 600px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+}
+
+/* Shop Items */
+#shopItems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+.shopItem {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px;
+  width: 150px;
+  text-align: center;
+}
+.shopItem h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+.shopItem p {
+  margin-bottom: 10px;
+}
+
+/* Friends List */
+#friendList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.friendItem {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px;
+  width: 200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.duel-btn {
+  background: #cc0000;
+  color: #fff;
+}
+.duel-btn:hover {
+  background: #a30000;
+}
+
+/* Settings Sub-Section */
+#settingsContent {
+  display: none;
+}
+#settingsContent.active {
+  display: block;
+  background: rgba(255,255,255,0.9);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+/* -----------------------------
+   Download Mode Styles
+------------------------------ */
+#downloadContent {
+  background: url("download-background.jpg") no-repeat center center;
+  background-size: cover;
+  color: #333;
+  text-align: center;
+  padding-top: 50px;
+}
+
+/* -----------------------------
+   General Button Styling
+------------------------------ */
+button {
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.download-btn {
+  background: #009900;
+  color: #fff;
+}
+.download-btn:hover {
+  background: #007700;
+}
