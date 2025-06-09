@@ -94,17 +94,20 @@ document.addEventListener("DOMContentLoaded", () => {
 // GitHub Login Flow (Simulated)
 // ------------------------------
 document.getElementById("githubLoginBtn").addEventListener("click", () => {
+  // Redirect directly to GitHub OAuth (replace YOUR_GITHUB_CLIENT_ID)
   window.location.href =
     "https://github.com/login/oauth/authorize?client_id=Ov23liVGrguwGKyy3qly&scope=read:user%20user:email";
 });
 
-// Process OAuth callback.
+// Process OAuth callback directly on page load
 (function handleOAuthCallback() {
   const params = new URLSearchParams(window.location.search);
   if (params.has("code")) {
-    // Simulate GitHub login.
+    const authCode = params.get("code");
+
+    // Simulate GitHub login (in production, exchange 'code' for an access token via a backend)
     userData = {
-      username: "GitHubUser",  
+      username: "GitHubUser",
       email: "githubuser@example.com",
       isGithub: true,
       coins: 0,
@@ -113,22 +116,24 @@ document.getElementById("githubLoginBtn").addEventListener("click", () => {
       offlineMode: false,
       character: ""
     };
-    // Check for duplicate username.
+
+    // Check for duplicate username among GitHub users
     let allGithubUsers = JSON.parse(localStorage.getItem("githubUsers") || "[]");
     if (allGithubUsers.includes(userData.username)) {
       alert("The username is already in use. Please change your gameplay username.");
-      // Force user to change it in extra info.
+      return;
     }
+
     localStorage.setItem("userData", JSON.stringify(userData));
-    // Show extra info input if character or gameplay username is missing.
     document.getElementById("userDisplayName").textContent = userData.username;
+
+    // Remove query parameters from URL for cleaner navigation
     window.history.replaceState({}, document.title, window.location.pathname);
-    showSection("liveGameContent");
-    // Then, show GitHub extra info section.
+
+    // Show GitHub extra info section if needed
     document.getElementById("githubExtraDiv").style.display = "block";
   }
 })();
-
 // ------------------------------
 // GitHub Extra Info Submission
 // ------------------------------
