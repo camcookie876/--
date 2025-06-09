@@ -1,111 +1,90 @@
-// ------------------------------
-// Helper Functions
-// ------------------------------
-function showSection(sectionId) {
-  document.querySelectorAll(".page").forEach((el) => el.classList.remove("active"));
-  const target = document.getElementById(sectionId);
-  if (target) target.classList.add("active");
+// ===== Helper Functions =====
+function showSection(id) {
+  document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+  let target = document.getElementById(id);
+  if(target) target.classList.add("active");
+}
+function showLiveSubSection(id) {
+  document.querySelectorAll(".liveSubSection").forEach(el => el.classList.remove("active"));
+  let target = document.getElementById(id);
+  if(target) target.classList.add("active");
+}
+function setStatusMessage(elId, msg) {
+  let el = document.getElementById(elId);
+  if(el) el.textContent = msg;
 }
 
-function showLiveSubSection(sectionId) {
-  document.querySelectorAll(".liveSubSection").forEach((el) => el.classList.remove("active"));
-  const target = document.getElementById(sectionId);
-  if (target) target.classList.add("active");
-}
-
-function showTestSubSection(sectionId) {
-  document.querySelectorAll(".testSubSection").forEach((el) => el.classList.remove("active"));
-  const target = document.getElementById(sectionId);
-  if (target) target.classList.add("active");
-}
-
-// ------------------------------
-// Global Variables
-// ------------------------------
-let userData = {}; // For current user session
+// ===== Global Variables =====
+let userData = {}; // Session data stored in sessionStorage and cleared on tab close
 const coinsReward = 100;
-const rewardInterval = 12 * 60 * 60 * 1000; // 12 hours
+const rewardInterval = 12 * 60 * 60 * 1000; // 12 hours in ms
+let plusActive = false; // Flag for paid plus subscription
 
-// For test portal expiration (30 days)
-const testPortalExpirationDays = 30;
-
-// Dummy friend list
-const friendList = [
-  { username: "Alice" },
-  { username: "Bob" },
-  { username: "Charlie" }
-];
-
-// Dummy shop items (spells)
+// Dummy Data
+const friendList = [{ username: "Alice" }, { username: "Bob" }, { username: "Charlie" }];
 const spells = [
   { name: "Fire Spell", damage: 20, price: 250 },
   { name: "Ice Spell", damage: 15, price: 200 },
   { name: "Lightning Spell", damage: 25, price: 300 }
 ];
+const exerciseStoreItems = [
+  { name: "Push Ups", price: 100 },
+  { name: "Squats", price: 120 },
+  { name: "Plank", price: 150 }
+];
 
-// ------------------------------
-// Initialize stored user data
-// ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  const storedData = localStorage.getItem("userData");
-  if (storedData) {
+// ===== Session Handling =====
+function saveUserSession() {
+  sessionStorage.setItem("userData", JSON.stringify(userData));
+}
+function loadUserSession() {
+  let data = sessionStorage.getItem("userData");
+  if(data) {
     try {
-      userData = JSON.parse(storedData);
-      if (userData.isGithub) {
-        if (userData.coins === undefined) userData.coins = 0;
-        if (!userData.position) userData.position = { x: 0, y: 0 };
-        if (userData.offlineMode === undefined) userData.offlineMode = false;
-        updateCoinDisplay();
-        updatePositionDisplay();
-        updateOfflineStatus();
-        if (!userData.character || userData.character.trim() === "") {
-          let newChar = prompt("Please choose your character:");
-          if (!newChar || newChar.trim() === "") {
-            alert("You must choose a character to play live. Setting default.");
-            newChar = "DefaultHero";
-          }
-          userData.character = newChar;
-          localStorage.setItem("userData", JSON.stringify(userData));
-        }
-        document.getElementById("userDisplayName").textContent = userData.username || userData.email;
-        showSection("liveGameContent");
-      } else if (userData.isTest) {
-        // Check test portal expiration.
-        const now = Date.now();
-        if (now > userData.expiry) {
-          alert("Test Portal session has expired.");
-          localStorage.removeItem("userData");
-          showSection("authSection");
-        } else {
-          document.getElementById("testUserDisplayName").textContent = userData.username;
-          showSection("testPortalContent");
-        }
-      } else {
-        document.getElementById("userDisplayNameNonGithub").textContent = userData.username;
-        showSection("downloadContent");
+      userData = JSON.parse(data);
+    } catch(e) { console.error("Error parsing session data", e); }
+  }
+}
+window.addEventListener("beforeunload", () => {
+  sessionStorage.removeItem("userData");
+});
+
+// ===== Initialization =====
+document.addEventListener("DOMContentLoaded", () => {
+  loadUserSession();
+  if(Object.keys(userData).length > 0) {
+    if(userData.isGithub) {
+      if(userData.coins === undefined) userData.coins = 0;
+      if(!userData.position) userData.position = { x: 0, y: 0 };
+      if(userData.offlineMode === undefined) userData.offlineMode = false;
+      updateCoinDisplay();
+      updateOfflineStatus();
+      if(!userData.character || userData.character.trim() === "") {
+        let newChar = prompt("Please choose your character:") || "DefaultHero";
+        userData.character = newChar;
+        saveUserSession();
       }
-    } catch (e) {
-      console.error("Error parsing stored userData:", e);
+      document.getElementById("userDisplayName").textContent = userData.username || userData.email;
+      showSection("liveGameContent");
+      populateWorldSelection();
+      document.getElementById("plusPlanBtn").style.display = userData.plus ? "inline-block" : "none";
+    }
+    else {
+      document.getElementById("userDisplayNameNonGithub").textContent = userData.username;
+      showSection("downloadContent");
     }
   }
 });
 
-// ------------------------------
-// GitHub Login Flow (Simulated)
-// ------------------------------
+// ===== OAuth Handling =====
 document.getElementById("githubLoginBtn").addEventListener("click", () => {
-  // Redirect directly to GitHub OAuth (replace YOUR_GITHUB_CLIENT_ID)
   window.location.href =
     "https://github.com/login/oauth/authorize?client_id=Ov23liVGrguwGKyy3qly&scope=read:user%20user:email";
 });
-
-// Process OAuth callback directly on page load
 (function handleOAuthCallback() {
   const params = new URLSearchParams(window.location.search);
-  if (params.has("code")) {
-    const authCode = params.get("code");
-
-    // Simulate GitHub login (in production, exchange 'code' for an access token via a backend)
+  if(params.has("code")) {
+    // Simulated GitHub login
     userData = {
       username: "GitHubUser",
       email: "githubuser@example.com",
@@ -116,413 +95,368 @@ document.getElementById("githubLoginBtn").addEventListener("click", () => {
       offlineMode: false,
       character: ""
     };
-
-    // Check for duplicate username among GitHub users
-    let allGithubUsers = JSON.parse(localStorage.getItem("githubUsers") || "[]");
-    if (allGithubUsers.includes(userData.username)) {
-      alert("The username is already in use. Please change your gameplay username.");
-      return;
-    }
-
-    localStorage.setItem("userData", JSON.stringify(userData));
+    // Allow multiple GitHub accounts per device:
+    saveUserSession();
     document.getElementById("userDisplayName").textContent = userData.username;
-
-    // Remove query parameters from URL for cleaner navigation
     window.history.replaceState({}, document.title, window.location.pathname);
-
-    // Show GitHub extra info section if needed
+    showSection("liveGameContent");
     document.getElementById("githubExtraDiv").style.display = "block";
   }
 })();
-// ------------------------------
-// GitHub Extra Info Submission
-// ------------------------------
 document.getElementById("githubExtraSubmit").addEventListener("click", () => {
   const gameplayUsername = document.getElementById("githubGameplayUsername").value.trim();
   const avatarInputs = document.getElementsByName("githubAvatar");
   let avatarUrl = "";
-  avatarInputs.forEach((input) => {
-    if (input.checked) avatarUrl = input.value;
-  });
-  if (!gameplayUsername || !avatarUrl) {
-    document.getElementById("githubExtraError").textContent =
-      "Gameplay username and avatar are required.";
+  avatarInputs.forEach(input => { if(input.checked) avatarUrl = input.value; });
+  if(!gameplayUsername || !avatarUrl) {
+    setStatusMessage("githubExtraError", "Gameplay username and avatar are required.");
     return;
   }
-  // Check duplicate among GitHub users.
-  let allGithubUsers = JSON.parse(localStorage.getItem("githubUsers") || "[]");
-  if (allGithubUsers.includes(gameplayUsername)) {
-    document.getElementById("githubExtraError").textContent =
-      "This gameplay username is already used. Please choose another.";
-    return;
-  }
-  // Update current user info:
+  // Save the new gameplay username and avatar
   userData.username = gameplayUsername;
   userData.avatar = avatarUrl;
-  localStorage.setItem("userData", JSON.stringify(userData));
-  // Also update global list:
+  saveUserSession();
+  // Save in sessionStorage list of GitHub users for duplicate check
+  let allGithubUsers = JSON.parse(sessionStorage.getItem("githubUsers") || "[]");
+  if(allGithubUsers.includes(gameplayUsername)) {
+    setStatusMessage("githubExtraError", "This gameplay username is already used. Choose another.");
+    return;
+  }
   allGithubUsers.push(gameplayUsername);
-  localStorage.setItem("githubUsers", JSON.stringify(allGithubUsers));
+  sessionStorage.setItem("githubUsers", JSON.stringify(allGithubUsers));
   document.getElementById("userDisplayName").textContent = gameplayUsername;
   document.getElementById("githubExtraDiv").style.display = "none";
 });
 
-// ------------------------------
-// Normal Account: Sign Up / Sign In
-// ------------------------------
+// ===== Normal Account Functions =====
 document.getElementById("normalSignupBtn").addEventListener("click", () => {
   const username = document.getElementById("normalUsername").value.trim();
   const password = document.getElementById("normalSignupPassword").value;
   const character = document.getElementById("normalCharacter").value.trim();
-  const errorMsg = document.getElementById("normalAuthError");
-
-  if (!username || !character) {
+  let errorMsg = document.getElementById("normalAuthError");
+  if(!username || !character) {
     errorMsg.textContent = "Username and character are required.";
     return;
   }
-  // For normal users, duplicate usernames are allowed.
-  const normalUser = {
-    username,
-    password: password || "", // May be empty on sign‐up; can be set later.
-    character,
-    isGithub: false,
-    createdAt: new Date().toISOString()
-  };
-  // Save this normal user (simulate multiple accounts by saving under 'normalUser'; in reality, a file would list many users)
-  localStorage.setItem("normalUser", JSON.stringify(normalUser));
+  const normalUser = { username, password: password || "", character, isGithub: false, createdAt: new Date().toISOString() };
+  sessionStorage.setItem("normalUser", JSON.stringify(normalUser));
   userData = normalUser;
-  localStorage.setItem("userData", JSON.stringify(userData));
+  saveUserSession();
   document.getElementById("userDisplayNameNonGithub").textContent = username;
   errorMsg.textContent = "";
   showSection("downloadContent");
 });
-
 document.getElementById("normalSignInBtn").addEventListener("click", () => {
   const username = document.getElementById("normalUsername").value.trim();
   const password = document.getElementById("normalSignInPassword").value;
-  const errorMsg = document.getElementById("normalAuthError");
-  if (!username) {
-    errorMsg.textContent = "Please enter your username.";
-    return;
-  }
-  const storedUser = localStorage.getItem("normalUser");
-  if (!storedUser) {
-    errorMsg.textContent = "No account found. Please sign up first.";
-    return;
-  }
+  let errorMsg = document.getElementById("normalAuthError");
+  if(!username) { errorMsg.textContent = "Enter your username."; return; }
+  const storedUser = sessionStorage.getItem("normalUser");
+  if(!storedUser) { errorMsg.textContent = "No account found. Sign up first."; return; }
   const normalUser = JSON.parse(storedUser);
-  // If password is required, check it.
-  if (normalUser.password && normalUser.password !== password) {
+  if(normalUser.password && normalUser.password !== password) {
     errorMsg.textContent = "Incorrect password.";
     return;
   }
-  if (!normalUser.character || normalUser.character.trim() === "") {
-    errorMsg.textContent =
-      "No character found. Please sign up and choose a character.";
+  if(!normalUser.character || normalUser.character.trim() === "") {
+    errorMsg.textContent = "No character found. Sign up and choose one.";
     return;
   }
   userData = normalUser;
-  localStorage.setItem("userData", JSON.stringify(userData));
+  saveUserSession();
   document.getElementById("userDisplayNameNonGithub").textContent = username;
   errorMsg.textContent = "";
   showSection("downloadContent");
 });
-
-// (Optional: You can reveal the sign in password field if the uploaded game file requires it)
-// For example, listen for file input change:
-document.getElementById("normalGameFile").addEventListener("change", (e) => {
-  // In a full implementation, read file and if file indicates password protection, display the password field.
-  // For our demo, we always display it.
+document.getElementById("normalGameFile").addEventListener("change", () => {
   document.getElementById("normalSignInPassword").style.display = "block";
 });
 
-// ------------------------------
-// Logout Functions
-// ------------------------------
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("userData");
-  showSection("authSection");
-});
-document.getElementById("logoutBtnNonGithub").addEventListener("click", () => {
-  localStorage.removeItem("userData");
-  showSection("authSection");
-});
-document.getElementById("logoutTestBtn").addEventListener("click", () => {
-  localStorage.removeItem("userData");
-  showSection("authSection");
-});
+// ===== Logout =====
+document.getElementById("logoutBtn").addEventListener("click", () => { sessionStorage.removeItem("userData"); showSection("authSection"); });
+document.getElementById("logoutBtnNonGithub").addEventListener("click", () => { sessionStorage.removeItem("userData"); showSection("authSection"); });
 
-// ------------------------------
-// Daily Rewards (for GitHub live mode only)
-// ------------------------------
+// ===== Daily Rewards (GitHub Live) =====
 document.getElementById("dailyRewardBtn").addEventListener("click", () => {
-  if (!userData.isGithub) return;
-  const now = Date.now();
-  if (!userData.lastReward || now - userData.lastReward >= rewardInterval) {
-    userData.coins = (userData.coins || 0) + coinsReward;
+  if(!userData.isGithub) return;
+  let now = Date.now();
+  if(!userData.lastReward || now - userData.lastReward >= rewardInterval) {
+    let reward = coinsReward;
+    if(plusActive) reward *= 2;
+    userData.coins = (userData.coins || 0) + reward;
     userData.lastReward = now;
-    localStorage.setItem("userData", JSON.stringify(userData));
+    saveUserSession();
     updateCoinDisplay();
-    alert("You received " + coinsReward + " coins!");
+    setStatusMessage("menuContent", "Received " + reward + " coins!");
   } else {
-    const remaining = Math.ceil((rewardInterval - (now - userData.lastReward)) / 60000);
-    alert("Daily reward available in " + remaining + " minutes.");
+    let remaining = Math.ceil((rewardInterval - (now - userData.lastReward)) / 60000);
+    setStatusMessage("menuContent", "Reward available in " + remaining + " minutes.");
   }
 });
 
-// ------------------------------
-// Update Display Functions
-// ------------------------------
+// ===== Display Updates =====
 function updateCoinDisplay() {
   document.getElementById("coinDisplay").textContent = userData.coins || 0;
-  if (userData.isTest) {
-    document.getElementById("testCoinDisplay").textContent = userData.coins || 0;
-  }
 }
-
-function updatePositionDisplay() {
-  document.getElementById("posX").textContent = (userData.position && userData.position.x) || 0;
-  document.getElementById("posY").textContent = (userData.position && userData.position.y) || 0;
-  if (userData.isTest) {
-    document.getElementById("testPosX").textContent = (userData.position && userData.position.x) || 0;
-    document.getElementById("testPosY").textContent = (userData.position && userData.position.y) || 0;
-  }
-}
-
 function updateOfflineStatus() {
   document.getElementById("offlineStatus").textContent = userData.offlineMode ? "Offline" : "Online";
   document.getElementById("friendsBtn").style.display = userData.offlineMode ? "none" : "inline-block";
-  if (userData.offlineMode) {
-    showLiveSubSection("menuContent");
+  if(userData.offlineMode) showLiveSubSection("menuContent");
+}
+
+// ===== World Selection =====
+function populateWorldSelection() {
+  let container = document.getElementById("worldButtons");
+  container.innerHTML = "";
+  for(let i = 1; i <= 20; i++) {
+    let btn = document.createElement("button");
+    btn.textContent = "World " + i;
+    btn.className = "btn world-btn";
+    btn.addEventListener("click", () => { setStatusMessage("menuContent", "World " + i + " selected."); });
+    container.appendChild(btn);
   }
 }
 
-// ------------------------------
-// Map Functionality (Live Mode)
-// ------------------------------
-document.getElementById("mapBtn").addEventListener("click", () => {
-  showLiveSubSection("mapContainer");
-});
-document.getElementById("menuBtn").addEventListener("click", () => {
-  showLiveSubSection("menuContent");
-});
-document.getElementById("shopBtn").addEventListener("click", () => {
-  showLiveSubSection("shopContainer");
-});
-document.getElementById("friendsBtn").addEventListener("click", () => {
-  showLiveSubSection("friendsContainer");
-});
-document.getElementById("settingsBtn").addEventListener("click", () => {
-  showLiveSubSection("settingsContent");
-});
-
-// Process clicks on map areas.
-document.querySelectorAll("map[name='gameMap'] area").forEach((area) => {
+// ===== Map Functionality =====
+document.getElementById("mapBtn").addEventListener("click", () => { showLiveSubSection("mapContainer"); });
+document.getElementById("menuBtn").addEventListener("click", () => { showLiveSubSection("menuContent"); });
+document.getElementById("shopBtn").addEventListener("click", () => { showLiveSubSection("shopContainer"); });
+document.getElementById("friendsBtn").addEventListener("click", () => { showLiveSubSection("friendsContainer"); });
+document.getElementById("settingsBtn").addEventListener("click", () => { showLiveSubSection("settingsContent"); });
+document.querySelectorAll("map[name='gameMap'] area").forEach(area => {
   area.addEventListener("click", (event) => {
     event.preventDefault();
-    if (area.dataset.forbidden === "true") {
-      alert("Restricted zone: You are not allowed to enter here!");
+    if(area.dataset.forbidden === "true") {
+      setStatusMessage("menuContent", "Restricted zone: Access Denied.");
       return;
     }
-    const targetX = parseInt(area.dataset.x, 10);
-    const targetY = parseInt(area.dataset.y, 10);
-    userData.position = { x: targetX, y: targetY };
-    localStorage.setItem("userData", JSON.stringify(userData));
-    updatePositionDisplay();
-    alert("Moved to position (" + targetX + ", " + targetY + ")");
+    if(area.dataset.battle === "monster") {
+      let monsterHP = parseInt(area.dataset.monsterhp) || 500;
+      let opponent = { username: "Monster", avatar: "https://example.com/monster.png", health: monsterHP };
+      enterBattle(opponent);
+    } else {
+      userData.position = { x: parseInt(area.dataset.x), y: parseInt(area.dataset.y) };
+      saveUserSession();
+      setStatusMessage("menuContent", "Moved successfully.");
+    }
   });
 });
-document.getElementById("backToMenuFromMap").addEventListener("click", () => {
-  showLiveSubSection("menuContent");
-});
+document.getElementById("backToMenuFromMap").addEventListener("click", () => { showLiveSubSection("menuContent"); });
 
-// ------------------------------
-// Shop Functionality (Live Mode)
-// ------------------------------
-document.getElementById("backToMenuFromShop").addEventListener("click", () => {
-  showLiveSubSection("menuContent");
-});
+// ===== Shop Functionality =====
+document.getElementById("backToMenuFromShop").addEventListener("click", () => { showLiveSubSection("menuContent"); });
 function updateShop() {
-  const shopItemsDiv = document.getElementById("shopItems");
-  shopItemsDiv.innerHTML = "";
-  spells.forEach((spell) => {
-    const itemDiv = document.createElement("div");
-    itemDiv.className = "shopItem";
-    const title = document.createElement("h3");
+  let shopDiv = document.getElementById("shopItems");
+  shopDiv.innerHTML = "";
+  spells.forEach(spell => {
+    let div = document.createElement("div");
+    div.className = "shopItem";
+    let title = document.createElement("h3");
     title.textContent = spell.name;
-    const price = document.createElement("p");
+    let price = document.createElement("p");
     price.textContent = "Price: " + spell.price + " coins";
-    const buyBtn = document.createElement("button");
-    buyBtn.textContent = "Buy " + spell.name;
-    buyBtn.addEventListener("click", () => {
-      if ((userData.coins || 0) >= spell.price) {
+    let btn = document.createElement("button");
+    btn.textContent = "Buy " + spell.name;
+    btn.addEventListener("click", () => {
+      if((userData.coins || 0) >= spell.price) {
         userData.coins -= spell.price;
-        alert("Purchased " + spell.name + "!");
-        localStorage.setItem("userData", JSON.stringify(userData));
+        saveUserSession();
         updateCoinDisplay();
+        setStatusMessage("shopItems", "Purchased " + spell.name + "!");
         updateShop();
       } else {
-        alert("Not enough coins!");
+        setStatusMessage("shopItems", "Not enough coins!");
       }
     });
-    itemDiv.appendChild(title);
-    itemDiv.appendChild(price);
-    itemDiv.appendChild(buyBtn);
-    shopItemsDiv.appendChild(itemDiv);
+    div.append(title, price, btn);
+    shopDiv.appendChild(div);
   });
 }
 document.getElementById("shopBtn").addEventListener("click", updateShop);
 
-// ------------------------------
-// Friends & Duel Functionality (Live Mode, GitHub only)
-// ------------------------------
+// ===== Friends & Duel =====
 function updateFriendList() {
-  if (userData.offlineMode) return;
-  const friendListDiv = document.getElementById("friendList");
-  friendListDiv.innerHTML = "";
-  friendList.forEach((friend) => {
-    const friendDiv = document.createElement("div");
-    friendDiv.className = "friendItem";
-    friendDiv.textContent = friend.username;
-    const duelBtn = document.createElement("button");
+  if(userData.offlineMode) return;
+  let flist = document.getElementById("friendList");
+  flist.innerHTML = "";
+  friendList.forEach(friend => {
+    let fdiv = document.createElement("div");
+    fdiv.className = "friendItem";
+    fdiv.textContent = friend.username;
+    let friendBtn = document.createElement("button");
+    friendBtn.textContent = "Friend";
+    friendBtn.addEventListener("click", () => { setStatusMessage("friendList", friend.username + " friended."); });
+    let duelBtn = document.createElement("button");
     duelBtn.textContent = "Duel";
     duelBtn.className = "btn duel-btn";
-    duelBtn.addEventListener("click", () => {
-      alert("Duel started with " + friend.username + "!");
-    });
-    friendDiv.appendChild(duelBtn);
-    friendListDiv.appendChild(friendDiv);
+    duelBtn.addEventListener("click", () => { enterBattle({ username: friend.username, avatar: "https://example.com/friend_avatar.png", health: 100 }); });
+    fdiv.append(friendBtn, duelBtn);
+    flist.appendChild(fdiv);
   });
 }
 document.getElementById("friendsBtn").addEventListener("click", updateFriendList);
 
-// ------------------------------
-// Toggle Offline Mode (GitHub only)
-// ------------------------------
+// ===== Toggle Offline Mode =====
 document.getElementById("toggleOfflineBtn").addEventListener("click", () => {
   userData.offlineMode = !userData.offlineMode;
-  localStorage.setItem("userData", JSON.stringify(userData));
+  saveUserSession();
   updateOfflineStatus();
-  alert("Offline mode " + (userData.offlineMode ? "enabled" : "disabled") +
-    ". Friends and duel options are " + (userData.offlineMode ? "hidden" : "available") + ".");
+  let btn = document.getElementById("toggleOfflineBtn");
+  btn.textContent = userData.offlineMode ? "Online Mode" : "Play Offline";
+  setStatusMessage("menuContent", "Switched to " + (userData.offlineMode ? "Offline" : "Online") + " mode.");
 });
 
-// ------------------------------
-// Settings Sub-Section Functions
-// ------------------------------
+// ===== Settings =====
 document.getElementById("updatePasswordBtn").addEventListener("click", () => {
-  const newPass = document.getElementById("newPassword").value;
-  if (!newPass) {
-    alert("Please enter a new password.");
-    return;
-  }
-  userData.password = newPass;
-  localStorage.setItem("userData", JSON.stringify(userData));
-  alert("Password updated.");
+  let np = document.getElementById("newPassword").value;
+  if(!np) { setStatusMessage("settingsContent", "Enter a new password."); return; }
+  userData.password = np;
+  saveUserSession();
+  setStatusMessage("settingsContent", "Password updated.");
 });
-
-document.getElementById("transferDataBtn").addEventListener("click", () => {
-  // Transfer data from an uploaded game JSON file
-  const fileInput = document.getElementById("transferGameFile");
-  if (fileInput.files.length === 0) {
-    alert("Please select a file to transfer data from.");
-    return;
+document.getElementById("updateUsernameBtn").addEventListener("click", () => {
+  let nu = document.getElementById("editUsername").value.trim();
+  if(!nu) { setStatusMessage("settingsContent", "Enter a new username."); return; }
+  userData.username = nu;
+  saveUserSession();
+  setStatusMessage("settingsContent", "Username updated.");
+});
+document.getElementById("updateAvatarBtn").addEventListener("click", () => {
+  const avatarInputs = document.getElementsByName("settingsAvatar");
+  let newAvatar = "";
+  avatarInputs.forEach(input => { if(input.checked) newAvatar = input.value; });
+  if(!newAvatar) { setStatusMessage("settingsContent", "Select an avatar."); return; }
+  userData.avatar = newAvatar;
+  saveUserSession();
+  setStatusMessage("settingsContent", "Avatar updated.");
+});
+document.getElementById("deleteAccountBtn").addEventListener("click", () => {
+  if(confirm("Are you sure you wish to delete your account? This cannot be undone.")) {
+    sessionStorage.removeItem("userData");
+    setStatusMessage("settingsContent", "Account deleted.");
+    showSection("authSection");
   }
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-  reader.onload = function (e) {
+});
+document.getElementById("transferDataBtn").addEventListener("click", () => {
+  let fileInput = document.getElementById("transferGameFile");
+  if(fileInput.files.length === 0) { setStatusMessage("settingsContent", "Select a file to transfer."); return; }
+  let reader = new FileReader();
+  reader.onload = (e) => {
     try {
-      const transferredData = JSON.parse(e.target.result);
-      // Merge transferred data into userData (avoid overwriting vital fields)
-      userData = { ...userData, ...transferredData };
-      localStorage.setItem("userData", JSON.stringify(userData));
+      let transferred = JSON.parse(e.target.result);
+      userData = { ...userData, ...transferred };
+      saveUserSession();
       updateCoinDisplay();
-      updatePositionDisplay();
-      alert("Data transferred successfully.");
-    } catch (err) {
-      alert("Error transferring data. Please ensure the file is valid.");
+      setStatusMessage("settingsContent", "Data transferred successfully.");
+    } catch(err) {
+      setStatusMessage("settingsContent", "Data transfer error: invalid file.");
     }
   };
-  reader.readAsText(file);
+  reader.readAsText(fileInput.files[0]);
 });
+document.getElementById("settingsBtn").addEventListener("click", () => { updateExerciseStore(); updateExerciseInventory(); });
+document.getElementById("backToMenuFromSettings").addEventListener("click", () => { showLiveSubSection("menuContent"); });
 
-// Test Portal: When testPageBtn is clicked, create/activate test portal.
-document.getElementById("testPageBtn").addEventListener("click", () => {
-  // For testing, we simulate a test portal creation if not already set.
-  // Also require a password for test portal entry. (Hardcode a value for this demo.)
-  const testPassword = prompt("Enter the Test Portal password:");
-  const expectedTestPassword = "test123"; // Set your test password here.
-  if (testPassword !== expectedTestPassword) {
-    alert("Incorrect test portal password.");
-    return;
-  }
-  // Create test portal data.
-  userData.isTest = true;
-  // Set expiration time 30 days from now.
-  userData.expiry = Date.now() + testPortalExpirationDays * 24 * 60 * 60 * 1000;
-  // Save test portal info.
-  localStorage.setItem("userData", JSON.stringify(userData));
-  document.getElementById("testUserDisplayName").textContent = userData.username;
-  showSection("testPortalContent");
+// ===== Paid Subscription (Plus Plan) =====
+document.getElementById("plusPlanBtn").addEventListener("click", () => { showSection("plusPlanPage"); });
+document.getElementById("subscribePaidBtn").addEventListener("click", () => {
+  plusActive = true;
+  userData.plus = true;
+  saveUserSession();
+  setStatusMessage("settingsContent", "Subscribed to Plus Plan: rewards and damage doubled!");
+  document.getElementById("plusStatus").textContent = "Plus Active";
 });
+document.getElementById("unsubscribePaidBtn").addEventListener("click", () => {
+  plusActive = false;
+  userData.plus = false;
+  saveUserSession();
+  setStatusMessage("settingsContent", "Plus Plan unsubscribed.");
+  document.getElementById("plusStatus").textContent = "";
+});
+document.getElementById("backFromPlusPlan").addEventListener("click", () => { showSection("liveGameContent"); });
 
-// Test Portal Navigation
-document.getElementById("testMenuBtn").addEventListener("click", () => {
-  showTestSubSection("testMenuContent");
-});
-document.getElementById("testMapBtn").addEventListener("click", () => {
-  showTestSubSection("testMapContainer");
-});
-document.getElementById("testShopBtn").addEventListener("click", () => {
-  showTestSubSection("testShopContainer");
-});
-document.getElementById("testSettingsBtn").addEventListener("click", () => {
-  showTestSubSection("testSettingsContent");
-});
-document.getElementById("logoutTestBtn").addEventListener("click", () => {
-  localStorage.removeItem("userData");
-  showSection("authSection");
-});
-document.getElementById("backToTestMenuFromMap").addEventListener("click", () => {
-  showTestSubSection("testMenuContent");
-});
-document.getElementById("backToTestMenuFromShop").addEventListener("click", () => {
-  showTestSubSection("testMenuContent");
-});
-document.getElementById("backToTestMenuFromSettings").addEventListener("click", () => {
-  showTestSubSection("testMenuContent");
-});
-document.getElementById("testUpdatePasswordBtn").addEventListener("click", () => {
-  const testNewPass = document.getElementById("testNewPassword").value;
-  if (!testNewPass) {
-    alert("Please enter a new password.");
-    return;
+// ===== Battle Functionality =====
+function enterBattle(opponent) {
+  document.getElementById("playerAvatar").src = userData.avatar || "";
+  document.getElementById("playerHealth").style.width = "100%";
+  if(opponent) {
+    document.getElementById("opponentAvatar").src = opponent.avatar || "";
+    document.getElementById("opponentHealth").style.width = "100%";
   }
-  userData.password = testNewPass;
-  localStorage.setItem("userData", JSON.stringify(userData));
-  alert("Test portal password updated.");
+  showLiveSubSection("battlePage");
+}
+document.getElementById("attackBtn").addEventListener("click", () => {
+  let playerDamage = plusActive ? 20 : 10;
+  let oppDamage = plusActive ? 20 : 10;
+  let oppBar = document.getElementById("opponentHealth");
+  let oppWidth = parseInt(oppBar.style.width);
+  oppWidth = Math.max(oppWidth - playerDamage, 0);
+  oppBar.style.width = oppWidth + "%"; oppBar.textContent = oppWidth + "%";
+  let playerBar = document.getElementById("playerHealth");
+  let playerWidth = parseInt(playerBar.style.width);
+  playerWidth = Math.max(playerWidth - oppDamage, 0);
+  playerBar.style.width = playerWidth + "%"; playerBar.textContent = playerWidth + "%";
+  if(oppWidth === 0 || playerWidth === 0) { showLiveSubSection("menuContent"); }
 });
+document.getElementById("defendBtn").addEventListener("click", () => { setStatusMessage("menuContent", "Defense activated!"); });
+document.getElementById("retreatBtn").addEventListener("click", () => { showLiveSubSection("menuContent"); });
+document.getElementById("endBattleBtn").addEventListener("click", () => { showLiveSubSection("menuContent"); });
 
-// ------------------------------
-// Offline Mode / Download Mode Functions (Non-GitHub)
-// ------------------------------
-document.getElementById("viewMapBtn").addEventListener("click", () => {
-  const offlineDiv = document.getElementById("offlineMapBadges");
-  offlineDiv.style.display = offlineDiv.style.display === "none" ? "block" : "none";
-});
-document.getElementById("downloadFileBtn").addEventListener("click", () => {
-  if (userData.isGithub) {
-    alert("GitHub users are not permitted to download game data.");
-    return;
+// ===== Exercise Management =====
+function updateExerciseStore() {
+  let storeDiv = document.getElementById("storeItems");
+  if(!storeDiv) return;
+  storeDiv.innerHTML = "";
+  exerciseStoreItems.forEach(item => {
+    let div = document.createElement("div");
+    div.className = "shopItem";
+    div.innerHTML = `<h3>${item.name}</h3><p>Price: ${item.price} coins</p>`;
+    let btn = document.createElement("button");
+    btn.textContent = "Buy " + item.name;
+    btn.addEventListener("click", () => {
+      if((userData.coins || 0) >= item.price) {
+        userData.coins -= item.price;
+        let inv = JSON.parse(sessionStorage.getItem("exerciseInventory") || "[]");
+        inv.push(item);
+        sessionStorage.setItem("exerciseInventory", JSON.stringify(inv));
+        saveUserSession();
+        updateCoinDisplay();
+        setStatusMessage("settingsContent", "Purchased " + item.name + ".");
+        updateExerciseInventory();
+      } else { setStatusMessage("settingsContent", "Not enough coins for " + item.name + "."); }
+    });
+    div.appendChild(btn);
+    storeDiv.appendChild(div);
+  });
+}
+function updateExerciseInventory() {
+  let invDiv = document.getElementById("exerciseList");
+  if(!invDiv) return;
+  invDiv.innerHTML = "";
+  let inv = JSON.parse(sessionStorage.getItem("exerciseInventory") || "[]");
+  inv.forEach((item, idx) => {
+    let p = document.createElement("p");
+    p.textContent = item.name;
+    invDiv.appendChild(p);
+  });
+  let eqSelect = document.getElementById("exerciseEquipSelect");
+  if(eqSelect) {
+    eqSelect.innerHTML = "";
+    inv.forEach((item, idx) => {
+      let option = document.createElement("option");
+      option.value = idx;
+      option.textContent = item.name;
+      eqSelect.appendChild(option);
+    });
   }
-  const fileData = "Chirpy Games: Fall of the Firewall\nGame data for non-GitHub players.";
-  const blob = new Blob([fileData], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "ChirpyGamesData.txt";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+}
+document.getElementById("equipExerciseBtn").addEventListener("click", () => {
+  let eqSelect = document.getElementById("exerciseEquipSelect");
+  let coord = document.getElementById("exerciseEquipCoord").value.trim();
+  if(eqSelect.selectedIndex < 0 || !coord) { setStatusMessage("settingsContent", "Select an exercise and provide a coordinate."); return; }
+  let inv = JSON.parse(sessionStorage.getItem("exerciseInventory") || "[]");
+  userData.equippedExercise = { exercise: inv[eqSelect.selectedIndex], coordinate: coord };
+  saveUserSession();
+  setStatusMessage("settingsContent", "Equipped " + inv[eqSelect.selectedIndex].name + " at " + coord + ".");
 });
+document.getElementById("backFromExercises").addEventListener("click", () => { showSection("settingsContent"); });
