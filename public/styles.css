@@ -1,0 +1,263 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background: #0099ff; /* All backgrounds changed to solid #0099ff */
+  color: #fff;
+}
+
+/* General Pages */
+.page {
+  width: 100%;
+  min-height: 100vh;
+  display: none;
+  padding: 20px;
+  background: #0099ff;
+}
+
+.active {
+  display: block;
+}
+
+/* Authentication Section */
+#authSection {
+  background: #0099ff;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+#authSection h2,
+#authSection p,
+.small-text {
+  color: #fff;
+}
+
+.small-text {
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+/* Buttons */
+.btn {
+  background: #cc0000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn:hover {
+  background: #990000;
+}
+
+.github-btn {
+  /* same as btn */
+}
+
+.test-btn {
+  background: #ff6600;
+}
+
+/* Normal Auth */
+#normalAuthDiv {
+  margin-top: 20px;
+  padding: 15px;
+  border-top: 1px solid #fff;
+}
+
+#normalAuthDiv h3 {
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+#normalAuthDiv input {
+  display: block;
+  width: 90%;
+  padding: 10px;
+  margin: 10px auto;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  background: #0099ff;
+  color: #fff;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-around;
+}
+
+.error-text {
+  color: #ffcc00;
+  margin-top: 10px;
+}
+
+/* Avatar Selection */
+.avatar-selection {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.avatar-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.avatar-options label {
+  cursor: pointer;
+}
+
+.avatar-options img {
+  width: 80px;
+  height: 80px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  transition: border 0.3s;
+}
+
+.avatar-options input[type="radio"]:checked + img {
+  border-color: #cc0000;
+}
+
+/* Live Game Content */
+#liveGameContent {
+  background: #0099ff;
+  text-align: center;
+  padding-top: 30px;
+}
+
+#liveNav .btn {
+  margin: 5px;
+  background: #cc0000;
+  color: #fff;
+}
+
+#liveNav .btn:hover {
+  background: #990000;
+}
+
+.liveSubSection {
+  display: none;
+}
+
+.liveSubSection.active {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+#mapContainer img {
+  width: 100%;
+  max-width: 600px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+}
+
+#shopItems,
+#friendList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.shopItem,
+.friendItem {
+  background: #0099ff;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.friendItem {
+  width: 200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.duel-btn {
+  background: #cc0000;
+  color: #fff;
+}
+
+.duel-btn:hover {
+  background: #990000;
+}
+
+/* Battle Page */
+#battlePage {
+  background: #0099ff;
+  text-align: center;
+  padding-top: 30px;
+}
+
+.battle-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.health-bar {
+  width: 100px;
+  background: #555;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+.health-fill {
+  background: #00cc00;
+  color: #000;
+  text-align: center;
+  height: 20px;
+  line-height: 20px;
+}
+
+/* Settings */
+#settingsContent.active {
+  display: block;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0099ff;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+/* Plus Plan Page */
+#plusPlanPage {
+  background: #0099ff;
+  text-align: center;
+  padding-top: 50px;
+}
+
+/* Exercise Management Page */
+#exerciseManagementPage {
+  background: #0099ff;
+  text-align: center;
+  padding-top: 50px;
+}
+
+.shopItem {
+  width: 150px;
+}

@@ -6,9 +6,9 @@
   <title>Chirpy Games: Fall of the Firewall</title>
   <!-- Favicon using the provided URL -->
   <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/214270165?v=4" />
-  <link rel="stylesheet" href="https://camcookie876.github.io/Chirpy-Games/styles.css" />
+  <link rel="stylesheet" href="https://camcookie876.github.io/Chirpy-Games/public/styles.css" />
   <!-- Main JavaScript file; defer ensures the DOM is loaded -->
-  <script src="https://camcookie876.github.io/Chirpy-Games/script.js" defer></script>
+  <script src="https://camcookie876.github.io/Chirpy-Games/public/script.js" defer></script>
 </head>
 <body>
   <!-- ===== Authentication / Sign Up Page ===== -->
@@ -34,6 +34,8 @@
         <hr />
         <h3>Normal Account Sign Up</h3>
         <input id="normalUsername" type="text" placeholder="Create a Username" autocomplete="username" />
+        <!-- Assuming a field for character input -->
+        <input id="normalCharacter" type="text" placeholder="Enter Character Name" autocomplete="off" />
         <!-- Password is optional -->
         <input id="normalSignupPassword" type="password" placeholder="Create Password (optional)" autocomplete="new-password" />
         <!-- Avatar Selection (3 distinct avatars) -->
@@ -152,7 +154,7 @@
         <input id="editUsername" type="text" placeholder="New Username" />
         <button id="updateUsernameBtn" class="btn">Update Username</button>
       </div>
-      <!-- Edit Password (non-GitHub users can set password here) -->
+      <!-- Edit Password -->
       <div id="editPasswordDiv">
         <h3>Edit Password</h3>
         <input id="newPassword" type="password" placeholder="Enter new password" autocomplete="new-password" />
@@ -258,7 +260,7 @@
       <h2>Your Badges</h2>
       <p>(Badge details go here.)</p>
     </div>
-    <button id="downloadFileBtn" class="btn download-btn">Download Game Data File</button>
+    <button id="downloadFileBtn" class="btn">Download Game Data File</button>
     <br />
     <button id="logoutBtnNonGithub" class="btn">Logout</button>
   </section>
