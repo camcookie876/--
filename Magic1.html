@@ -1,0 +1,63 @@
+<!-- magic1.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Magic1 Adventure</title>
+  <link rel="stylesheet" href="https://camcookie876.github.io/Tweetzi/magic1.css" />
+</head>
+<body>
+  <!-- LOGIN / SIGNUP SCREEN -->
+  <div id="login-screen" class="overlay">
+    <div class="form-box">
+      <h2>Welcome to Magei Realm</h2>
+      <input type="text" id="username" placeholder="Enter your name" />
+      <div class="btn-group">
+        <button id="signup-btn">Sign Up</button>
+        <button id="login-btn">Log In</button>
+      </div>
+      <input type="file" id="load-input" accept=".json" hidden />
+    </div>
+  </div>
+
+  <!-- INTRO VIDEO SCREEN -->
+  <div id="video-screen" class="overlay hidden">
+    <video id="intro-video" autoplay muted playsinline>
+      <source src="intro.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <!-- 3D GAME CANVAS -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- DIALOG TEXTBOX -->
+  <div id="text-box">Welcome, adventurer…</div>
+
+  <!-- PAUSE BUTTON -->
+  <button id="pause-button">⏸️</button>
+
+  <!-- PAUSE MENU OVERLAY -->
+  <div id="pause-screen" class="overlay hidden">
+    <div class="pause-menu">
+      <button id="save-btn">Save Game</button>
+      <button id="close-btn">Close</button>
+      <button id="continue-btn">Continue</button>
+    </div>
+    <!-- Confirm dialogs -->
+    <div id="confirm-save" class="confirm-dialog hidden">
+      <p>Would you like to save your Game data before closing?</p>
+      <button id="confirm-save-yes">Yes</button>
+      <button id="confirm-save-no">No</button>
+    </div>
+    <div id="confirm-logout" class="confirm-dialog hidden">
+      <p>Are you sure you want to log out?</p>
+      <button id="confirm-logout-yes">Yes</button>
+      <button id="confirm-logout-no">No</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://camcookie876.github.io/Tweetzi/magic1.js"></script>
+</body>
+</html>
