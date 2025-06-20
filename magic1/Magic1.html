@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Magic1 Adventure</title>
-  <link rel="stylesheet" href="https://camcookie876.github.io/Tweetzi/magic1/magic1.css" />
+  <link
+    rel="stylesheet"
+    href="https://camcookie876.github.io/Tweetzi/magic1/magic1.css"
+  />
 </head>
 <body>
   <!-- LOGIN / SIGNUP SCREEN -->
@@ -45,16 +48,27 @@
       X <span id="ad-timer">3</span>
     </button>
     <div id="ad-content">
-      <!-- Customize your ad here (image, text, etc.) -->
+      <!-- Customize your ad here -->
       <img src="tweetzi-ad.png" alt="Tweetzi Game Ad" />
+    </div>
+  </div>
+
+  <!-- CUSTOM WARNING POP-UP -->
+  <div id="warning-popup" class="popup hidden">
+    <div class="popup-content">
+      <span class="popup-icon">⚠️</span>
+      <p id="popup-message"></p>
+      <button id="popup-ok-btn">OK</button>
     </div>
   </div>
 
   <!-- 3D GAME CANVAS -->
   <canvas id="game-canvas"></canvas>
 
-  <!-- PAUSE BUTTON (only on map) -->
-  <button id="pause-button" class="hidden">⏸️</button>
+  <!-- PAUSE BUTTON (map only) -->
+  <button id="pause-button" class="hidden">
+    <span class="pause-bar"></span><span class="pause-bar"></span>
+  </button>
 
   <!-- PAUSE MENU OVERLAY -->
   <div id="pause-screen" class="overlay hidden">
@@ -75,6 +89,9 @@
     </div>
   </div>
 
-  <script type="module" src="https://camcookie876.github.io/Tweetzi/magic1/magic1.js"></script>
+  <script
+    src="https://camcookie876.github.io/Tweetzi/magic1/magic1.js"
+    type="module"
+  ></script>
 </body>
 </html>

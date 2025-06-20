@@ -7,7 +7,7 @@ let userData = { name:'', position:null, dialog:'' };
 let hasSavedThisSession = false;
 let adTimer = 3, adInterval, inAd = false;
 
-// DOM Refs
+// DOM refs
 const loginScreen      = document.getElementById('login-screen');
 const videoScreen      = document.getElementById('video-screen');
 const videoErrorScreen = document.getElementById('video-error-screen');
@@ -16,6 +16,9 @@ const errorContinueBtn = document.getElementById('error-continue-btn');
 const adScreen         = document.getElementById('ad-screen');
 const adCloseBtn       = document.getElementById('ad-close-btn');
 const adTimerSpan      = document.getElementById('ad-timer');
+const popup            = document.getElementById('warning-popup');
+const popupMsg         = document.getElementById('popup-message');
+const popupOk          = document.getElementById('popup-ok-btn');
 const canvas           = document.getElementById('game-canvas');
 const pauseBtn         = document.getElementById('pause-button');
 const pauseScreen      = document.getElementById('pause-screen');
@@ -39,23 +42,37 @@ const billboards = [
   { pos: new THREE.Vector3(-25, 5, 15), texture: 'billboard2.png' }
 ];
 
+// DISABLE RIGHT CLICK
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// UTILITY: show custom popup
+function showPopup(msg) {
+  popupMsg.textContent = msg;
+  popup.classList.remove('hidden');
+}
+popupOk.onclick = () => popup.classList.add('hidden');
+
 // 1) AUTH FLOW
 signupBtn.onclick = () => {
-  const n = usernameInput.value.trim();
-  if (!n) return alert('Enter a name.');
-  userData.name = n;
+  const name = usernameInput.value.trim();
+  if (!name) return showPopup('Please enter a name to sign up.');
+  userData.name = name;
   startVideo();
 };
 loginBtn.onclick = () => loadInput.click();
 loadInput.onchange = e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try { userData = JSON.parse(r.result); startVideo(); }
-    catch { alert('Invalid save file.'); }
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      userData = JSON.parse(reader.result);
+      startVideo();
+    } catch {
+      showPopup('Invalid save file format.');
+    }
   };
-  r.readAsText(f);
+  reader.readAsText(file);
 };
 
 function startVideo() {
@@ -69,7 +86,7 @@ introVideo.onerror = () => {
   videoScreen.classList.add('hidden');
   videoErrorScreen.classList.remove('hidden');
 };
-introVideo.onended = () => launchGame();
+introVideo.onended = launchGame;
 errorContinueBtn.onclick = () => {
   videoErrorScreen.classList.add('hidden');
   launchGame();
@@ -83,7 +100,6 @@ function launchGame() {
 
 // 3) THREE.JS + FIRST-PERSON SETUP
 function initScene() {
-  // show pause on map
   pauseBtn.classList.remove('hidden');
 
   renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
@@ -95,59 +111,58 @@ function initScene() {
 
   controls = new PointerLockControls(camera, canvas);
   canvas.addEventListener('click', () => controls.lock());
-  controls.addEventListener('lock', () => { /* hide cursor UI */ });
-  controls.addEventListener('unlock', () => { /* show cursor UI */ });
 
   // movement state
-  const move = { forward:0, backward:0, left:0, right:0 };
+  const move = { f:0, b:0, l:0, r:0 };
   document.addEventListener('keydown', e => {
-    if      (e.code==='KeyW') move.forward=1;
-    else if (e.code==='KeyS') move.backward=1;
-    else if (e.code==='KeyA') move.left=1;
-    else if (e.code==='KeyD') move.right=1;
+    if (e.code==='KeyW') move.f=1;
+    if (e.code==='KeyS') move.b=1;
+    if (e.code==='KeyA') move.l=1;
+    if (e.code==='KeyD') move.r=1;
   });
   document.addEventListener('keyup', e => {
-    if      (e.code==='KeyW') move.forward=0;
-    else if (e.code==='KeyS') move.backward=0;
-    else if (e.code==='KeyA') move.left=0;
-    else if (e.code==='KeyD') move.right=0;
+    if (e.code==='KeyW') move.f=0;
+    if (e.code==='KeyS') move.b=0;
+    if (e.code==='KeyA') move.l=0;
+    if (e.code==='KeyD') move.r=0;
   });
 
-  // light & ground
   scene.add(new THREE.HemisphereLight(0xffffff,0x444444,1));
+
+  // ground
   const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(200, 200),
+    new THREE.PlaneGeometry(200,200),
     new THREE.MeshLambertMaterial({ color:0x654321 })
   );
   ground.rotation.x = -Math.PI/2;
   scene.add(ground);
 
-  // tree ring barrier
-  const barrier = new THREE.Group();
+  // barrier ring
+  const ring = new THREE.Group();
   for (let i=0; i<32; i++) {
     const a = i/32*Math.PI*2, r=17;
-    const tree = new THREE.Mesh(
+    const t = new THREE.Mesh(
       new THREE.CylinderGeometry(1,1,8,8),
       new THREE.MeshLambertMaterial({ color:0x55aa55 })
     );
-    tree.position.set(Math.cos(a)*r,4,Math.sin(a)*r);
-    barrier.add(tree);
+    t.position.set(Math.cos(a)*r,4,Math.sin(a)*r);
+    ring.add(t);
   }
-  scene.add(barrier);
+  scene.add(ring);
 
   // billboards
   const loader = new THREE.TextureLoader();
   billboards.forEach(b => {
-    loader.load(b.texture, tx=> {
-      const mat = new THREE.MeshBasicMaterial({ map:tx, side:THREE.DoubleSide, transparent:true });
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(8,6), mat);
+    loader.load(b.texture, tx => {
+      const m = new THREE.MeshBasicMaterial({ map:tx, side:THREE.DoubleSide, transparent:true });
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(8,6), m);
       mesh.position.copy(b.pos);
       mesh.userData.isBillboard = true;
       scene.add(mesh);
     });
   });
 
-  // restore or init position
+  // restore camera pos
   if (userData.position) {
     camera.position.set(
       userData.position.x,
@@ -158,7 +173,6 @@ function initScene() {
     userData.position = camera.position.clone();
   }
 
-  // store movement & scene in closure for animation
   controls.moveState = move;
 }
 
@@ -166,23 +180,20 @@ function animate() {
   requestAnimationFrame(animate);
 
   if (!inAd && controls.isLocked) {
-    // basic FPS movement
-    const dt = 0.05;
-    const ms = controls.moveState;
-    camera.translateZ((ms.backward - ms.forward)*dt*10);
-    camera.translateX((ms.left - ms.right)*dt*10);
+    const dt = 0.05, ms = controls.moveState;
+    camera.translateZ((ms.b - ms.f)*dt*10);
+    camera.translateX((ms.l - ms.r)*dt*10);
 
-    // detect proximity to billboards
+    // billboard proximity
     billboards.forEach(b => {
-      const dist = camera.position.distanceTo(b.pos);
-      if (dist < 5) showAd();
+      if (camera.position.distanceTo(b.pos) < 5) showAd();
     });
   }
 
   renderer.render(scene, camera);
 }
 
-// 4) AD OVERLAY LOGIC
+// 4) AD LOGIC
 function showAd() {
   if (inAd) return;
   inAd = true;
@@ -191,7 +202,7 @@ function showAd() {
   adCloseBtn.disabled = true;
   adScreen.classList.remove('hidden');
 
-  adInterval = setInterval(()=>{
+  adInterval = setInterval(() => {
     adTimer--;
     adTimerSpan.textContent = adTimer;
     if (adTimer <= 0) {
@@ -206,7 +217,6 @@ adCloseBtn.onclick = () => {
   if (adTimer>0) return;
   adScreen.classList.add('hidden');
   inAd = false;
-  // resume gameplay at same spot
 };
 
 // 5) PAUSE / SAVE / LOGOUT
@@ -216,13 +226,24 @@ continueBtn.onclick = () => pauseScreen.classList.add('hidden');
 saveBtn.onclick = saveGame;
 closeBtn.onclick = () => confirmSave.classList.remove('hidden');
 
-confirmSaveYes.onclick = () => { saveGame(); confirmSave.classList.add('hidden'); confirmLogout.classList.remove('hidden'); };
-confirmSaveNo.onclick  = () => { confirmSave.classList.add('hidden'); confirmLogout.classList.remove('hidden'); };
+confirmSaveYes.onclick = () => {
+  saveGame();
+  confirmSave.classList.add('hidden');
+  confirmLogout.classList.remove('hidden');
+};
+confirmSaveNo.onclick = () => {
+  confirmSave.classList.add('hidden');
+  confirmLogout.classList.remove('hidden');
+};
 confirmLogoutYes.onclick = logout;
-confirmLogoutNo.onclick  = () => confirmLogout.classList.add('hidden');
+confirmLogoutNo.onclick = () => confirmLogout.classList.add('hidden');
 
 function saveGame() {
-  userData.position = { x:camera.position.x, y:camera.position.y, z:camera.position.z };
+  userData.position = {
+    x: camera.position.x,
+    y: camera.position.y,
+    z: camera.position.z
+  };
   const blob = new Blob([JSON.stringify(userData, null,2)], { type:'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
@@ -244,6 +265,7 @@ function logout() {
 
 window.addEventListener('beforeunload', e => {
   if (!hasSavedThisSession) {
-    e.preventDefault(); e.returnValue = '';
+    e.preventDefault();
+    e.returnValue = '';
   }
 });
