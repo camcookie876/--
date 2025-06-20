@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Magic1 Adventure</title>
-  <link rel="stylesheet" href="https://camcookie876.github.io/Tweetzi/magic1.css" />
+  <link rel="stylesheet" href="magic1.css" />
 </head>
 <body>
   <!-- LOGIN / SIGNUP SCREEN -->
@@ -27,14 +27,34 @@
     </video>
   </div>
 
+  <!-- VIDEO ERROR SCREEN -->
+  <div id="video-error-screen" class="overlay hidden">
+    <button id="error-continue-btn">Continue</button>
+    <div class="error-scroll">
+      <img src="comic.png" alt="Comic panel" />
+      <p class="error-text">
+        Oh no! Looks like this Video is lost in the fun.<br/>
+        You can look at this comic instead.
+      </p>
+    </div>
+  </div>
+
+  <!-- AD OVERLAY -->
+  <div id="ad-screen" class="overlay hidden">
+    <button id="ad-close-btn" disabled>
+      X <span id="ad-timer">3</span>
+    </button>
+    <div id="ad-content">
+      <!-- Customize your ad here (image, text, etc.) -->
+      <img src="tweetzi-ad.png" alt="Tweetzi Game Ad" />
+    </div>
+  </div>
+
   <!-- 3D GAME CANVAS -->
   <canvas id="game-canvas"></canvas>
 
-  <!-- DIALOG TEXTBOX -->
-  <div id="text-box">Welcome, adventurer…</div>
-
-  <!-- PAUSE BUTTON -->
-  <button id="pause-button">⏸️</button>
+  <!-- PAUSE BUTTON (only on map) -->
+  <button id="pause-button" class="hidden">⏸️</button>
 
   <!-- PAUSE MENU OVERLAY -->
   <div id="pause-screen" class="overlay hidden">
@@ -43,9 +63,8 @@
       <button id="close-btn">Close</button>
       <button id="continue-btn">Continue</button>
     </div>
-    <!-- Confirm dialogs -->
     <div id="confirm-save" class="confirm-dialog hidden">
-      <p>Would you like to save your Game data before closing?</p>
+      <p>Would you like to save your game data before closing?</p>
       <button id="confirm-save-yes">Yes</button>
       <button id="confirm-save-no">No</button>
     </div>
@@ -56,8 +75,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://camcookie876.github.io/Tweetzi/magic1.js"></script>
+  <script type="module" src="magic1.js"></script>
 </body>
 </html>
