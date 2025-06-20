@@ -10,8 +10,14 @@
   />
 </head>
 <body>
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen">
+    <img id="loading-logo" src="logo.png" alt="Logo" />
+    <div id="loading-text">Twitzi</div>
+  </div>
+
   <!-- LOGIN / SIGNUP SCREEN -->
-  <div id="login-screen" class="overlay">
+  <div id="login-screen" class="overlay hidden">
     <div class="form-box">
       <h2>Welcome to Magei Realm</h2>
       <input type="text" id="username" placeholder="Enter your name" />
@@ -48,12 +54,11 @@
       X <span id="ad-timer">3</span>
     </button>
     <div id="ad-content">
-      <!-- Customize your ad here -->
       <img src="tweetzi-ad.png" alt="Tweetzi Game Ad" />
     </div>
   </div>
 
-  <!-- CUSTOM WARNING POP-UP -->
+  <!-- WARNING POP-UP -->
   <div id="warning-popup" class="popup hidden">
     <div class="popup-content">
       <span class="popup-icon">⚠️</span>
@@ -62,15 +67,21 @@
     </div>
   </div>
 
+  <!-- HUD: Username & Level -->
+  <div id="hud" class="hidden">
+    <span id="username-display"></span>
+    <span id="level-display"></span>
+  </div>
+
   <!-- 3D GAME CANVAS -->
   <canvas id="game-canvas"></canvas>
 
-  <!-- PAUSE BUTTON (map only) -->
+  <!-- PAUSE BUTTON -->
   <button id="pause-button" class="hidden">
     <span class="pause-bar"></span><span class="pause-bar"></span>
   </button>
 
-  <!-- PAUSE MENU OVERLAY -->
+  <!-- PAUSE MENU -->
   <div id="pause-screen" class="overlay hidden">
     <div class="pause-menu">
       <button id="save-btn">Save Game</button>
@@ -78,7 +89,7 @@
       <button id="continue-btn">Continue</button>
     </div>
     <div id="confirm-save" class="confirm-dialog hidden">
-      <p>Would you like to save your game data before closing?</p>
+      <p>Save your game data before closing?</p>
       <button id="confirm-save-yes">Yes</button>
       <button id="confirm-save-no">No</button>
     </div>
